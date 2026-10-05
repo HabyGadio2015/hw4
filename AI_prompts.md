@@ -12,3 +12,4 @@ Word-for-word log of every prompt Haby typed, grouped by problem.
 ## Problem 1: Vibe Coder Prompts
 
 1. Problem 1: Vibe Coder Prompts
+2. Download the zip called datahw4.zip in the AI Foundations folder. You should have data/campus_customs.db (SQLite database with tables catalogue, inventory, and users (one test user is already there), data/products/ product images; paths match teh catalogue table
