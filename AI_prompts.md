@@ -14,3 +14,10 @@ Word-for-word log of every prompt Haby typed, grouped by problem.
 1. Problem 1: Vibe Coder Prompts
 2. Download the zip called datahw4.zip in the AI Foundations folder. You should have data/campus_customs.db (SQLite database with tables catalogue, inventory, and users (one test user is already there), data/products/ product images; paths match teh catalogue table
 3. Create AI_prompts.md at the start and update it as I go. The rest of the instructions are identical to the How We Worked session (number/title, feedback, etc)
+
+Feedback from Haby: 
+
+## Problem 2: Analyze the Database
+
+1. Look at the database data/campus_customs.db and look at the fields of each table. Especially the catalogue, inventory, and users. Create the file output/harness.md Write down each table and its fields, and one line of why each field matters for the shop and/or the chatbot. We will keep growing this harness file in later problems (models, tools, safety, specs)
+2. One sec, this is Problem 2: Analyze the Database
