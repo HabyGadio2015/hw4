@@ -1,5 +1,6 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
+import { useAuth } from '../auth'
 
 const mainLinks = [
   { to: '/', label: 'Home' },
@@ -10,6 +11,14 @@ const mainLinks = [
 const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? 'nav-link active' : 'nav-link')
 
 export default function NavBar() {
+  const { user, loading, logout } = useAuth()
+  const navigate = useNavigate()
+
+  async function handleLogout() {
+    await logout()
+    navigate('/')
+  }
+
   return (
     <header className="navbar">
       <div className="navbar-inner">
@@ -22,12 +31,23 @@ export default function NavBar() {
           ))}
         </nav>
         <nav className="nav-account" aria-label="Account">
-          <NavLink to="/login" className={linkClass}>
-            Log in
-          </NavLink>
-          <NavLink to="/create-account" className="btn btn-light">
-            Create Account
-          </NavLink>
+          {loading ? null : user ? (
+            <>
+              <span className="nav-user">Hi, {user.first_name || user.name}</span>
+              <button className="btn btn-light" onClick={handleLogout}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <>
+              <NavLink to="/login" className={linkClass}>
+                Log in
+              </NavLink>
+              <NavLink to="/create-account" className="btn btn-light">
+                Create Account
+              </NavLink>
+            </>
+          )}
         </nav>
       </div>
     </header>

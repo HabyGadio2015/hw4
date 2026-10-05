@@ -709,3 +709,41 @@
     gap: 1.5rem;
   }
 }
+
+/* Auth */
+.nav-user {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.form-error {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  background: #fdecec;
+  border: 1px solid #f3b6b6;
+  border-radius: 4px;
+  color: #a12020;
+  font-size: 0.9rem;
+}
+
+.field-hint {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.field-error {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #a12020;
+}
+
+.form input[aria-invalid='true'] {
+  border-color: #d64545;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

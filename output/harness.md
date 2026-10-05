@@ -93,3 +93,34 @@ Existing accounts: Test User (`test@campuscustoms.yale.edu`, the provided test l
 - `ProductDetail`: ProductSummary + colors, search_tags (parsed from JSON), inventory
 - `SizeStock`: size, quantity (sorted XS→XXL)
 - `ChatMessage` (frontend only, for now): role, content
+
+## 3. Accounts & Auth (Problem 4)
+
+Code: `backend/auth.py` (router mounted in `main.py`), `frontend/src/auth.tsx` (AuthProvider/useAuth), `pages/Login.tsx`, `pages/CreateAccount.tsx`.
+
+| Endpoint | Body | Result |
+|---|---|---|
+| `POST /api/auth/signup` | first_name, last_name, email, password, confirm_password | 201 + `UserPublic`, logs the user in |
+| `POST /api/auth/login` | email, password | 200 + `UserPublic`, or 401 "Incorrect email or password." |
+| `POST /api/auth/logout` | none | 204, clears the session cookie |
+| `GET /api/auth/me` | none | the current `UserPublic`, or 401 |
+
+### What we store for a user (`users` row)
+- `first_name`, `last_name`, `name` ("First Last", since the column is NOT NULL), `email` (trimmed and lowercased, unique), `created_at` (set by the DB).
+- `password_hash`: **never the password itself.** For new accounts the format is `pbkdf2_sha256$600000$<32-hex random salt>$<64-hex digest>`.
+- The API only ever returns `UserPublic` (id, first_name, last_name, name, email). The hash never leaves the backend and will never be given to the agent.
+
+### How passwords are protected
+- **Slow, salted hashing:** PBKDF2-HMAC-SHA256 with 600,000 iterations (OWASP 2023), from Python's standard library. Every user gets a unique random salt, so identical passwords produce different hashes and precomputed rainbow tables don't work. If the DB leaked, each guess would cost 600k hash rounds per user.
+- **Seed users still work:** the 3 seed hashes use a legacy format, `pbkdf2_sha256$<salt>$<digest>`, with 120,000 iterations (verified against the test user). `verify_password` handles both formats.
+- **Constant-time compare** (`hmac.compare_digest`), plus a dummy hash check when the email is unknown, so response timing doesn't reveal which emails exist.
+- **Same error message** for a wrong email and a wrong password.
+- **Brute-force limit:** 5 failed logins per email or 20 per IP within 15 minutes → 429 for 15 minutes (in memory).
+- **Signup checks** on both front end and backend: all fields required, valid email, password ≥ 8 characters, password = confirm password, no duplicate email (case-insensitive) → 409.
+- **Sessions:** an HMAC-SHA256-signed token `{uid, exp}` in an `HttpOnly`, `SameSite=Lax` cookie that lasts 7 days. Page JavaScript (or an injected script) can't read it, and a tampered token is rejected. The secret comes from `SESSION_SECRET` (env) or a random value per run. Set `secure=True` when served over HTTPS.
+- **Never logged or committed:** plaintext passwords are not logged or sent to any model. The DB is git-ignored.
+
+### Verified (2026-10-05)
+- Seed test user `test@campuscustoms.yale.edu` / `password` → logs in, the nav shows "Hi, Test", the session survives a reload, and logout works.
+- A brand-new account created through the form → stored as user id 4 with a 600k-iteration hash, logs in, logs out, and logs back in (email is case-insensitive). The plaintext password is not anywhere in the DB file. Test credentials are in `backend/TEST_ACCOUNTS.md`.
+- Wrong password, unknown email, mismatched confirm, short password, bad email, duplicate email, tampered cookie, and the 6th rapid failed login (429) are all rejected.

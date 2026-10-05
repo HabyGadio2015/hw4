@@ -25,3 +25,19 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
 }
+
+export interface User {
+  id: number
+  first_name: string | null
+  last_name: string | null
+  name: string
+  email: string
+}
+
+export interface SignupInput {
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+  confirm_password: string
+}

@@ -1,8 +1,9 @@
 """Campus Customs backend.
 
 Problem 3: a small read-only API that serves the product catalogue, stock by
-size, and product images from data/campus_customs.db. Later problems grow this
-into the PydanticAI agent backend.
+size, and product images from data/campus_customs.db.
+Problem 4: accounts and login (auth.py). Later problems grow this into the
+PydanticAI agent backend.
 
 Run from HW 4/backend:
     .venv/bin/uvicorn main:app --reload --port 8000
@@ -16,6 +17,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+
+from auth import router as auth_router
 
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 DB_PATH = DATA_DIR / "campus_customs.db"
@@ -31,6 +34,8 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+app.include_router(auth_router)
 
 # Serve only the product images folder, never the whole data/ folder (the DB lives there).
 app.mount("/media/products", StaticFiles(directory=PRODUCTS_DIR), name="product-images")

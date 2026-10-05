@@ -39,3 +39,9 @@ Feedback from Haby: I asked my agent to look over its work and verify it had fol
 
 1. Problem 4: Create Account and Login
 2. I want you to build a normal create-account / login flow. In Create Account user should be able to have boxes for : First Name, Last Name, Email, Password, Confirm Password. It should also have a Log In option with boxes Email and Password. New accounts go into the users table. Make sure to store passwords securely so hackers (human or AI) cannot access them. The seed database already has a test user you can use while building. Email test@campuscustoms.yale.edu and Password password. Confirm that you can login as that user, and that a brand-new account you create also works. Update output/harness.md with how auth works (what you store for a user and how passwords are protected).
+
+Feedback from Haby: 
+
+## Problem 5: PydanticAI Agent Backend
+
+1. Problem 5: PydanticAI Agent Backend. Build the shop chatbot as a PydanticAI agent behind FastAPI, plugged into your frontend chat widget. Put the API app in backend/main.py - that is the file you run with Uvicorn. Keep the agent as these four files next to it (same idea as HW 3 - verify that you have looked through hw3 and understand what we are doing).  I want 4 things (1) backend/prompts/prompt.md - system prompt (grow this same file later). (2) backend/agent.py - agent entry/wiring. (3) backend/tools.py - tools the agent can call (4) backend/models.py - Pydantic / PydanticAI structured types. In main.py expose a chat route so a message from the website returns a reply from the agent (and whatever else you need for products/auth) You will need my AI model API key for the agent
