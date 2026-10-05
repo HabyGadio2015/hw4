@@ -3,3 +3,16 @@
 __pycache__/
 *.pyc
 .DS_Store
+
+# Never commit the database or product images
+*.db
+*.sqlite
+*.sqlite3
+data/
+images/
+**/product_images/
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.gif
