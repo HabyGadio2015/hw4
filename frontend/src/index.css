@@ -1,0 +1,40 @@
+:root {
+  --yale-blue: #00356b;
+  --yale-blue-dark: #00254a;
+  --yale-blue-mid: #286dc0;
+  --yale-blue-light: #63aaff;
+  --yale-gray: #978d85;
+  --bg: #ffffff;
+  --bg-soft: #f2f5f9;
+  --text: #1f2933;
+  --muted: #5b6672;
+  --border: #dde3ea;
+
+  font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: Georgia, 'Times New Roman', serif;
+  color: var(--yale-blue);
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+a {
+  color: var(--yale-blue-mid);
+}
