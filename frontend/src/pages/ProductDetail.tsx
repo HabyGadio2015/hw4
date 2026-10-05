@@ -13,16 +13,18 @@ function stockLabel(quantity: number) {
 
 export default function ProductDetail() {
   const { productId = '' } = useParams()
-  const [product, setProduct] = useState<Product | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  // Results are tagged with the id they belong to, so a stale result never shows for a new product.
+  const [result, setResult] = useState<{ id: string; product?: Product; error?: string } | null>(null)
 
   useEffect(() => {
-    setProduct(null)
-    setError(null)
     fetchProduct(productId)
-      .then(setProduct)
-      .catch(() => setError('Sorry, we couldn’t find that product.'))
+      .then((product) => setResult({ id: productId, product }))
+      .catch(() => setResult({ id: productId, error: 'Sorry, we couldn’t find that product.' }))
   }, [productId])
+
+  const current = result?.id === productId ? result : null
+  const product = current?.product ?? null
+  const error = current?.error ?? null
 
   return (
     <section className="section page">

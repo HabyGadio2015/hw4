@@ -74,3 +74,22 @@ Existing accounts: Test User (`test@campuscustoms.yale.edu`, the provided test l
 - `colors` and `search_tags` are JSON strings → parse in the backend.
 - `garment_type` needs normalizing for filters.
 - Images are served from `data/products/` via the backend (existing history expects `/media/products/<file>`).
+
+## 2. Website & API (Problem 3)
+
+**Front end** (`frontend/`, React + Vite + TypeScript, port 5174): nav bar (Home, Products, About Us, Log in, Create Account), Yale blue theme, Products grid, single-item page at `/products/:productId`, and a floating chat panel in the bottom right. For now the chat is a stub (`sendChat()` in `src/api.ts`). Vite forwards `/api` and `/media` requests to the backend.
+
+**Backend** (`backend/main.py`, FastAPI, port 8000): read-only SQLite connection (`mode=ro`).
+
+| Endpoint | Returns | Why it matters |
+|---|---|---|
+| `GET /api/health` | `{status}` | Quick check that the backend is running. |
+| `GET /api/products` | `list[ProductSummary]` | Feeds the Products grid; `in_stock` drives the "Sold out" badge. |
+| `GET /api/products/{id}` | `ProductDetail` or 404 | Feeds the single-item page with exact price and stock per size. |
+| `/media/products/<file>` | image | Serves only the images folder, never `data/`, so the DB can't be downloaded. |
+
+**Pydantic models** (backend) mirrored as TypeScript types (`frontend/src/types.ts`):
+- `ProductSummary`: product_id, name, garment_type, description, price, image_url, in_stock
+- `ProductDetail`: ProductSummary + colors, search_tags (parsed from JSON), inventory
+- `SizeStock`: size, quantity (sorted XS→XXL)
+- `ChatMessage` (frontend only, for now): role, content
