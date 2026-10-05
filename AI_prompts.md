@@ -28,3 +28,4 @@ Feedback from Haby: Database has been analyzed. No additional prompts were neede
 ## Problem 3: Build the Campus Customs Website
 
 1. Problem 3: Build the Campus Customs Website
+2. Scaffold a React +  Vite + TypeScript front end for Campus Customs. Put a nav bar at the top that links to the main pages: Home, Products, About Us, Log in, Create Account. Pull Campus Customs-style wording from yalebulldogblue.com for Home and About Us. I want the site  to have Yale blue colors, logos and theme
