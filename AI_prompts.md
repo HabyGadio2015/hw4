@@ -15,7 +15,7 @@ Word-for-word log of every prompt Haby typed, grouped by problem.
 2. Download the zip called datahw4.zip in the AI Foundations folder. You should have data/campus_customs.db (SQLite database with tables catalogue, inventory, and users (one test user is already there), data/products/ product images; paths match teh catalogue table
 3. Create AI_prompts.md at the start and update it as I go. The rest of the instructions are identical to the How We Worked session (number/title, feedback, etc)
 
-Feedback from Haby: 
+Feedback from Haby: I asked my agent to review HW3 and we are on the same page. No additional prompts were needed.
 
 ## Problem 2: Analyze the Database
 
