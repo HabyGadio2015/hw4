@@ -16,7 +16,7 @@ export default function NavBar() {
         <Logo />
         <nav className="nav-main" aria-label="Main">
           {mainLinks.map((link) => (
-            <NavLink key={link.to} to={link.to} end className={linkClass}>
+            <NavLink key={link.to} to={link.to} end={link.to === '/'} className={linkClass}>
               {link.label}
             </NavLink>
           ))}
