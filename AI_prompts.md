@@ -31,3 +31,6 @@ Feedback from Haby: Database has been analyzed. No additional prompts were neede
 2. Scaffold a React +  Vite + TypeScript front end for Campus Customs. Put a nav bar at the top that links to the main pages: Home, Products, About Us, Log in, Create Account. Pull Campus Customs-style wording from yalebulldogblue.com for Home and About Us. I want the site  to have Yale blue colors, logos and theme
 3. On the Products page, show product images from the catalogue (use the image paths in the database) with basic product info (name, price, short description). Make each product open a single-item page (large image on one side, full product text on the other - description, price, size/stock, when you have them). Clicking on the card on Products should take the shopper there etc. Add a chat interface in the BOTTOM RIGHT of the site (a floating chat panel is fine). It does not need to talk to an agent yet - a stub that will call your backend later is enough for this proble. You will need a small API very soon in order to be able to read the database. Im allowing you to start a simple FastAPI app in backend/main.py just to serve products and images, then grow it into the agent backend (we'll see in Prob 5)
 4. Double check you've followed all my instructions. If there are any mistakes, fix it
+5. All done
+
+Feedback from Haby: 
