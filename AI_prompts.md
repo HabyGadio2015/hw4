@@ -21,3 +21,6 @@ Feedback from Haby: I asked my agent to review HW3 and we are on the same page. 
 
 1. Look at the database data/campus_customs.db and look at the fields of each table. Especially the catalogue, inventory, and users. Create the file output/harness.md Write down each table and its fields, and one line of why each field matters for the shop and/or the chatbot. We will keep growing this harness file in later problems (models, tools, safety, specs)
 2. One sec, this is Problem 2: Analyze the Database
+3. That's all.
+
+Feedback from Haby: 
