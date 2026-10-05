@@ -34,3 +34,7 @@ Feedback from Haby: Database has been analyzed. No additional prompts were neede
 5. All done
 
 Feedback from Haby: I asked my agent to look over its work and verify it had followed all my instructions/didn't make any mistakes. It verified all is correct.
+
+## Problem 4: Create Account and Login
+
+1. Problem 4: Create Account and Login
