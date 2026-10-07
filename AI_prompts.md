@@ -40,7 +40,7 @@ Feedback from Haby: I asked my agent to look over its work and verify it had fol
 1. Problem 4: Create Account and Login
 2. I want you to build a normal create-account / login flow. In Create Account user should be able to have boxes for : First Name, Last Name, Email, Password, Confirm Password. It should also have a Log In option with boxes Email and Password. New accounts go into the users table. Make sure to store passwords securely so hackers (human or AI) cannot access them. The seed database already has a test user you can use while building. Email test@campuscustoms.yale.edu and Password password. Confirm that you can login as that user, and that a brand-new account you create also works. Update output/harness.md with how auth works (what you store for a user and how passwords are protected).
 
-Feedback from Haby: 
+Feedback from Haby: There were no additional prompts that we needed. Based on the website image, the frontend looks correct.
 
 ## Problem 5: PydanticAI Agent Backend
 
