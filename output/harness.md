@@ -125,6 +125,12 @@ Code: `backend/auth.py` (router mounted in `main.py`), `frontend/src/auth.tsx` (
 - A brand-new account created through the form → stored as user id 4 with a 600k-iteration hash, logs in, logs out, and logs back in (email is case-insensitive). The plaintext password is not anywhere in the DB file. Test credentials are in `backend/TEST_ACCOUNTS.md`.
 - Wrong password, unknown email, mismatched confirm, short password, bad email, duplicate email, tampered cookie, and the 6th rapid failed login (429) are all rejected.
 
+### Note added 2026-10-07 (re-check of this section; the text above is unchanged)
+- **Seed hashes:** the 120,000-iteration claim was verified only for the test user, because only that account's password is known. Users 2 and 3 use the same format and are assumed to match.
+- **Signup reveals registered emails:** unlike login, the signup form says "An account with this email already exists", which tells a stranger an email is registered.
+- **Sessions reset on restart:** unless `SESSION_SECRET` is set, the signing secret is random each time the server starts, so a restart or code reload logs everyone out.
+- **"Not sent to any model":** this is true for login and signup. In the chat, passwords, card numbers, and SSNs are blocked before they reach the model only since Problem 9, and only for recognizable patterns (see section 8).
+
 ## 4. Agent Backend (Problem 5)
 
 Same layout as HW 3: one API app plus four agent files in `backend/`.
@@ -286,3 +292,20 @@ Full write-up with evidence: [usability.md](usability.md).
 - **Safety (section 4, extended):** `backend/guard.py` runs before the model, in `POST /api/chat`. A valid card number (Luhn check), an SSN, or "password / PIN / CVV is ..." gets a fixed safety reply. The message is **not** sent to the model and **not** saved to `chat_messages`.
 - **API contract:** `ChatResponse.tools_used` lists the catalogue tools the agent called that turn. Every chat also logs one server line (`chat user=… tools=… requests=… tokens_in=… tokens_out=… ms=…`) and never logs the message text.
 - **Shop pages:** a product finder on the Products page and conversation starters in the chat (see usability.md).
+
+## 9. Regression check (added 2026-10-07)
+
+`backend/regression_check.py` re-verifies earlier problems cheaply. It makes **no paid model calls** and **writes nothing to the database**. Run it from `backend/` with `.venv/bin/python regression_check.py`.
+
+| Group | What it re-checks |
+|---|---|
+| P2 database | Row counts (102 products, 612 stock rows), every image file exists, 6 sizes per product, password hashes are not plaintext |
+| P4 auth + harness claims | Hash and verify round trip (new and legacy format), session token round trip, a tampered token is rejected, and the numbers quoted in section 3 (iterations, brute-force limits, cookie days, minimum password length) still match the code |
+| P3/6/7 tools + cards | Price, description, stock (in stock / out of stock / size not found / product not found), snapshot, search, and product cards (fake ids dropped) |
+| P5/7/9 agent wiring + prompt | The prompt still has its required sections, the five tools are registered, the chat response fields exist, the agent runs end to end on a stand-in model, and the routes exist |
+| P8/9 context, memory, guard | The agent's context for a logged-in shopper and a guest (a hostile page path is dropped), saved history loads, and the sensitive-data guard's test cases |
+| git hygiene | The database, images, `.env`, `.venv`, and `node_modules` are not tracked (it notes that `TEST_ACCOUNTS.md` is) |
+| front end | `tsc` and lint pass |
+| live API smoke test | If the backend is running: products, images, a blocked database download, login, `/me`, history (401 for guests), and the guard reply |
+
+It does **not** judge the quality of the model's live answers. That still needs a real chat. Result on 2026-10-07: 8 of 8 groups passed.
