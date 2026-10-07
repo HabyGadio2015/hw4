@@ -163,3 +163,35 @@ Same layout as HW 3: one API app plus four agent files in `backend/`.
 - Offline first (no paid calls): compile, search quality, cards dropping fake ids, and full agent wiring with PydanticAI's `TestModel`.
 - Live: "navy hoodie in medium?" took 6.9 s and returned 4 cards. All prices and M stock match the DB.
 - Logged in as Test User in the browser: "pink hoodies?" → honestly says none (0 pink items in the DB). "Gray tee under $35, XL?" → 6 cards at $32.00, XL in stock on each, all matching the DB.
+
+## 5. Tools: Product Info and Stock (Problem 6)
+
+All tools are in `backend/tools.py`, and every one reads `campus_customs.db` through a **read-only** connection. Rule: **never invent a price or quantity.** If the DB has no answer, the tool says "Not Found" or "Out of Stock" and the agent repeats that.
+
+| Tool | Answers | Returns (`models.py`) |
+|---|---|---|
+| `search_products(query, color?, max_price?, in_stock_only?)` | "What do you have…?" Finds product_ids. | `list[ProductMatch]` |
+| `get_product_description(product)` | (1) Product description | `DescriptionLookup` |
+| `get_price(product)` | (2) Price | `PriceLookup` |
+| `check_stock(product, size?)` | (3) How many are in stock by size | `StockLookup` (list of `SizeAvailability`) |
+
+`product` = the exact `product_id`, or else an exact case-insensitive name match. There's **no fuzzy matching**, so the tool can't quietly answer about a different item. Sizes are normalized ("medium" → M, "2XL" → XXL). Unknown sizes stay as given and are reported as not found. (The Problem 5 `get_product_details` tool was replaced by these three focused lookups. `fetch_product_detail` still powers the product page API.)
+
+### Why these fields
+- **`status`** (`"found"` / `"not_found"`): an explicit, typed answer for a missing product, so a miss is a fact from the DB, not an empty result the model might fill in. It's a `Literal`, so it can't drift into other wording.
+- **`requested`** (and `requested_size`): echoes exactly what the agent asked for, so a "Not Found" answer can name what wasn't found. It's also useful for auditing a wrong lookup.
+- **`product_id` + `name`**: the id links the result to product cards. The name is what the shopper hears. Both are `None` when not found.
+- **`price: float | None` + `currency: "USD"`**: the exact `catalogue.price`. `None`, never 0, when not found, because $0.00 would look like a real (free) price.
+- **`SizeAvailability.status`** (`in_stock` / `out_of_stock` / `size_not_found`): the three cases you asked the agent to tell apart. Out of Stock (the size exists, quantity 0) is not the same as Not Found (we don't make that size).
+- **`SizeAvailability.quantity: int | None`**: the exact `inventory.quantity`. `0` means out of stock. `None` means the size doesn't exist, so neither case can be mistaken for the other.
+- **`total_in_stock`**: answers "is it available at all?" without the model having to add numbers up (and risk getting the sum wrong).
+- **`message`**: a ready-made plain sentence from the DB values (e.g. "size XS: Out of Stock."), so the simplest correct reply is to repeat it, which leaves less room to paraphrase into an error.
+- **`description`, `garment_type`, `colors`** (`DescriptionLookup`): the catalogue text and the parsed JSON color list, so "do you have it in pink?" is answered from real colors.
+- Lists default to empty and values default to `None`, never made-up placeholder values.
+
+### Prompt changes (`prompts/prompt.md`)
+New "Tools: product info and stock" section: a table matching each kind of question to a tool, a multi-step example, and how to word each status ("Not Found", "Out of Stock", the sizes offered). "Honesty first" now says: **NEVER invent a price or a quantity.** Every number must come from a tool result in this conversation.
+
+### Verified (2026-10-07)
+- Offline: in stock (M: 5), out of stock (XS: 0), size not found (XXXL), size aliases ("medium", "2xl"), product not found, and lookup by name. All match the DB.
+- Live: "Baseball Left Chest Crewneck price, XS / medium / XXXL, how many M?" → "$58.00. XS is Out of Stock, medium is in stock with 5 available, XXXL is Not Found… Sizes offered: XS–XXL" (8.6 s). "Yale Pink Unicorn Hoodie price, L?" → "Not Found in our catalogue, so I can't confirm a price or Large availability" plus a real alternative (5.4 s).

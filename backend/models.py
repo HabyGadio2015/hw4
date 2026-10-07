@@ -129,3 +129,57 @@ class AgentReply(BaseModel):
             "discusses. The website shows these as product cards. Empty if no specific product fits."
         ),
     )
+
+
+# ---------- Lookup tool results (Problem 6) ----------
+# Every result carries an explicit status so "not found" and "out of stock" are facts from the DB,
+# never gaps the model fills in. Values are None whenever the DB has no answer.
+
+LookupStatus = Literal["found", "not_found"]
+SizeStatus = Literal["in_stock", "out_of_stock", "size_not_found"]
+
+
+class DescriptionLookup(BaseModel):
+    """Result of get_product_description."""
+
+    status: LookupStatus
+    requested: str = Field(description="The product id or name exactly as asked.")
+    product_id: str | None = None
+    name: str | None = None
+    garment_type: str | None = None
+    description: str | None = None
+    colors: list[str] = Field(default_factory=list)
+    message: str = Field(description="One-line plain answer to relay, e.g. 'Not Found'.")
+
+
+class PriceLookup(BaseModel):
+    """Result of get_price. price is the exact catalogue value in USD, or None if not found."""
+
+    status: LookupStatus
+    requested: str
+    product_id: str | None = None
+    name: str | None = None
+    price: float | None = None
+    currency: Literal["USD"] = "USD"
+    message: str
+
+
+class SizeAvailability(BaseModel):
+    """Stock for one size. quantity is None only when the size doesn't exist for this product."""
+
+    size: str
+    quantity: int | None
+    status: SizeStatus
+
+
+class StockLookup(BaseModel):
+    """Result of check_stock: every size, or just the size asked about."""
+
+    status: LookupStatus
+    requested: str
+    requested_size: str | None = None
+    product_id: str | None = None
+    name: str | None = None
+    sizes: list[SizeAvailability] = Field(default_factory=list)
+    total_in_stock: int | None = None
+    message: str

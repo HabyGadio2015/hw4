@@ -19,7 +19,18 @@ from pydantic_ai import RunContext
 from pydantic_ai.models.openai import OpenAIResponsesModel
 from pydantic_ai.providers.openai import OpenAIProvider
 
-from models import ProductCard, ProductDetail, ProductMatch, ProductSummary, ShopDeps, SizeStock
+from models import (
+    DescriptionLookup,
+    PriceLookup,
+    ProductCard,
+    ProductDetail,
+    ProductMatch,
+    ProductSummary,
+    ShopDeps,
+    SizeAvailability,
+    SizeStock,
+    StockLookup,
+)
 
 BACKEND_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BACKEND_DIR.parent  # HW 4
@@ -264,14 +275,127 @@ def search_products(
     return search_catalogue(query, color=color, max_price=max_price, in_stock_only=in_stock_only)
 
 
-def get_product_details(ctx: RunContext[ShopDeps], product_id: str) -> ProductDetail | str:
-    """Get one product's full description, colors, exact price, and quantity in stock for each size.
+SIZE_ALIASES = {
+    "xs": "XS", "x-small": "XS", "extra small": "XS", "xsmall": "XS",
+    "s": "S", "small": "S",
+    "m": "M", "medium": "M", "med": "M",
+    "l": "L", "large": "L",
+    "xl": "XL", "x-large": "XL", "extra large": "XL", "xlarge": "XL",
+    "xxl": "XXL", "2xl": "XXL", "xx-large": "XXL", "2x": "XXL", "xxlarge": "XXL",
+}
+NOT_FOUND = "Not Found"
+
+
+def normalize_size(size: str) -> str:
+    """'medium' → 'M', '2XL' → 'XXL'. Unknown sizes are returned upper-cased so they report as not found."""
+    key = size.strip().lower()
+    return SIZE_ALIASES.get(key, size.strip().upper())
+
+
+def find_product_row(conn: sqlite3.Connection, product: str) -> sqlite3.Row | None:
+    """Exact product_id first, then exact name (case-insensitive). No fuzzy guessing."""
+    key = product.strip()
+    row = conn.execute("SELECT * FROM catalogue WHERE product_id = ?", (key,)).fetchone()
+    if row is None:
+        row = conn.execute("SELECT * FROM catalogue WHERE lower(name) = lower(?)", (key,)).fetchone()
+    return row
+
+
+def lookup_description(product: str) -> DescriptionLookup:
+    with connect() as conn:
+        row = find_product_row(conn, product)
+    if row is None:
+        return DescriptionLookup(status="not_found", requested=product, message=f"{NOT_FOUND}: no product '{product}'.")
+    return DescriptionLookup(
+        status="found",
+        requested=product,
+        product_id=row["product_id"],
+        name=row["name"],
+        garment_type=row["garment_type"],
+        description=row["description"],
+        colors=json.loads(row["colors"]),
+        message=row["description"],
+    )
+
+
+def lookup_price(product: str) -> PriceLookup:
+    with connect() as conn:
+        row = find_product_row(conn, product)
+    if row is None:
+        return PriceLookup(status="not_found", requested=product, message=f"{NOT_FOUND}: no product '{product}', so no price.")
+    return PriceLookup(
+        status="found",
+        requested=product,
+        product_id=row["product_id"],
+        name=row["name"],
+        price=row["price"],
+        message=f"{row['name']} costs ${row['price']:.2f}.",
+    )
+
+
+def lookup_stock(product: str, size: str | None = None) -> StockLookup:
+    with connect() as conn:
+        row = find_product_row(conn, product)
+        if row is None:
+            return StockLookup(
+                status="not_found", requested=product, requested_size=size,
+                message=f"{NOT_FOUND}: no product '{product}', so no stock information.",
+            )
+        stock = _stock_by_product(conn, [row["product_id"]])[row["product_id"]]
+
+    def availability(s: SizeStock) -> SizeAvailability:
+        return SizeAvailability(size=s.size, quantity=s.quantity, status="in_stock" if s.quantity > 0 else "out_of_stock")
+
+    total = sum(s.quantity for s in stock)
+    base = dict(status="found", requested=product, product_id=row["product_id"], name=row["name"], total_in_stock=total)
+    if size is None:
+        sizes = [availability(s) for s in stock]
+        in_stock = [f"{a.size} ({a.quantity})" for a in sizes if a.status == "in_stock"]
+        out = [a.size for a in sizes if a.status == "out_of_stock"]
+        message = f"{row['name']}: in stock {', '.join(in_stock) or 'none'}; out of stock {', '.join(out) or 'none'}."
+        return StockLookup(**base, sizes=sizes, message=message)
+
+    wanted = normalize_size(size)
+    match = next((s for s in stock if s.size == wanted), None)
+    if match is None:
+        sizes = [SizeAvailability(size=wanted, quantity=None, status="size_not_found")]
+        offered = ", ".join(s.size for s in stock)
+        return StockLookup(**base, requested_size=size, sizes=sizes,
+                           message=f"Size {wanted} {NOT_FOUND} for {row['name']}. Sizes offered: {offered}.")
+    a = availability(match)
+    message = (f"{row['name']} size {a.size}: {a.quantity} in stock." if a.status == "in_stock"
+               else f"{row['name']} size {a.size}: Out of Stock.")
+    return StockLookup(**base, requested_size=size, sizes=[a], message=message)
+
+
+def get_product_description(ctx: RunContext[ShopDeps], product: str) -> DescriptionLookup:
+    """Look up a product's real description, garment type, and colors in the database.
 
     Args:
-        product_id: The exact product_id from a search_products result.
+        product: The exact product_id from search_products (or the product's exact name).
     """
-    detail = fetch_product_detail(product_id)
-    return detail if detail else f"No product with id '{product_id}'. Search again; never guess an id."
+    return lookup_description(product)
 
 
-AGENT_TOOLS = [search_products, get_product_details]
+def get_price(ctx: RunContext[ShopDeps], product: str) -> PriceLookup:
+    """Look up a product's exact price (USD) in the database. Returns status 'not_found' if it doesn't exist.
+
+    Args:
+        product: The exact product_id from search_products (or the product's exact name).
+    """
+    return lookup_price(product)
+
+
+def check_stock(ctx: RunContext[ShopDeps], product: str, size: str | None = None) -> StockLookup:
+    """Look up how many are in stock by size in the database.
+
+    Each size comes back as in_stock (with quantity), out_of_stock (quantity 0), or size_not_found.
+
+    Args:
+        product: The exact product_id from search_products (or the product's exact name).
+        size: Optional single size to check, e.g. "M", "medium", "XL", "2XL". Omit to get every size.
+    """
+    return lookup_stock(product, size)
+
+
+AGENT_TOOLS = [search_products, get_product_description, get_price, check_stock]
