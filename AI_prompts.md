@@ -106,3 +106,4 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 6. And Prob 7
 7. And Prob 8
 8. On Prob 7 I want you to specifically add in output/harness.md how search results reach the page
+9. Let me see output/usability.md in prob 9
