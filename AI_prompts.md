@@ -168,5 +168,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 4. show me option 1
 5. 1b, show me everything down here
 6. i meanthe hw4/ list i just wrote out
+7. I dont want my email visible. I want you to replace anywhere my email is visible to hidden@gmail.com same with my username Hidden2015
 
 Feedback from Haby: 
