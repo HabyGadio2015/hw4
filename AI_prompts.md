@@ -130,7 +130,7 @@ Feedback from Haby: I appreciated that the agent asked me prior to each batch ru
 4. Is it necessary, yes or no
 5. Go ahead
 
-Feedback from Haby: 
+Feedback from Haby: There were a plethora of mistakes during this round of tasks. Prior to submitting, I will be increasing the model of the agent to check for these errors because this model is not the best.
 
 ## Problem 12: Audit Trail, Safety, Finish Harness
 
