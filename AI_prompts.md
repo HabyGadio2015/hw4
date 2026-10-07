@@ -166,5 +166,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 2. your tree and my tree do not match
 3. esp all the #
 4. show me option 1
+5. 1b, show me everything down here
 
 Feedback from Haby: 
