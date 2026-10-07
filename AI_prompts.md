@@ -138,3 +138,30 @@ Feedback from Haby:
 2. Yes complete the whole problem
 
 Feedback from Haby: There are a few times I had to ask the agent whether or not its propositions were necessary. In some cases, it is yes, like doing manuevers that protect passwords. On the other hand, there are some actions that are unnecessary and it said to me it could not rewrite previous information. In this case, I had to explicit tell it not to rewrite anything. So it is very important to constantly be checking its work
+
+## Problem 13: Push to GitHub and Submit the URL
+
+1. Problem 13: Push to GitHub and Submit the URL. Put my code in a folder called hw4 and push it to a public GitHub repository. Graders should be able to open and clone the repo URL. Do not put my real .env, campus_customs.db or product images in the GitHub repo. Use .gitignore Include .env.example with placeholders only. The expected file layout is This is the expected layout I want to see hw4/
+> ├── AI_prompts.md
+> ├── requirements.txt
+> ├── .env.example
+> ├── .gitignore
+> ├── README.md
+> ├── frontend/         #Vite React TypeScript app
+> ├── backend/
+> │   ├── main.py         #FastAPI app - run with: uvicorn main:app -- reload  --port 8000
+> │   ├── agent.py
+> │   ├── models.py
+> │   ├── tools.py 
+> │   ├── prompts/
+> │            ├── prompt.md
+> ├── output/
+> │   ├── harness.md
+> │   ├── design.md
+> │   ├── usability.md
+> │   ├── app_check.html
+> │   ├── app_check_images/ #screenshots linked from app_check.html
+> │   ├── audit_trail.json
+SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
+
+Feedback from Haby: 
