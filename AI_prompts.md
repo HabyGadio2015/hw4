@@ -79,5 +79,6 @@ Feedback from Haby: In terms of spending, my assignment is now costing a fractio
 
 1. Problem 8: Customer Memory    When a shopper is logged in, save their chat history in the database in an appropriate table and reload it when they return. The agent should KNOW WHO is chatting (name, email) - put that in agent deps (or an equivalent clear pattern) and/or tools the agent can call. Also pass enough page context that if someone is on product page and asks "do you have this in blue?" the agent knows which item they mean. HINT: you can put code into the agent context.
 2. Guests can still chat, but history only needs to persist for logged-in users. Document in output/harness.md (how user chat history is stored, what customer fields the agent sees, and how page context is passed.
+3. Are you done?
 
 Feedback from Haby: 
