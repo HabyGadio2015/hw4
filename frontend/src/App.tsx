@@ -5,6 +5,7 @@ import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import ChatWidget from './components/ChatWidget'
 import Confetti from './components/Confetti'
+import WelcomeJersey from './components/WelcomeJersey'
 import PageWipe from './components/PageWipe'
 import Pennants from './components/Pennants'
 import ThemeToggles from './components/ThemeToggles'
@@ -53,6 +54,7 @@ function App() {
       </main>
       <Footer />
       <Confetti />
+      <WelcomeJersey />
       {/* key: a new shopper (or logging out) starts a fresh widget, so chats never leak between accounts */}
       <ChatWidget key={user?.id ?? 'guest'} />
     </div>

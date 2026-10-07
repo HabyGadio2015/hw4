@@ -118,5 +118,6 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 5. just tell me the number
 6. go ahead
 7. In each of the 14 sentences I changed X because Y, after the sentence you wrote, I want a single sentence that says "It should help customers stick around and buy because ____" and fill in the blank
+8. Yes
 
 Feedback from Haby: 

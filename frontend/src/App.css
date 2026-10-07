@@ -1891,7 +1891,7 @@ html[data-calm='true'] .confetti {
 .size-chip.out {
   border-color: var(--border);
   background: var(--bg-soft);
-  color: #9a9488;
+  color: #706a5e;
   text-decoration: line-through;
 }
 
@@ -2101,7 +2101,7 @@ html[data-calm='true'] .confetti {
 .size-btn.out {
   border-color: var(--border);
   background: var(--bg-soft);
-  color: #9a9488;
+  color: #706a5e;
   text-decoration: line-through;
 }
 
@@ -2340,4 +2340,294 @@ html[data-calm='true'] .hang-card {
   width: 40px;
   height: 36px;
   margin-left: -20px;
+}
+
+/* ===== Problem 10, batch 3: bulldog helper, results rail, welcome jersey ===== */
+.bulldog {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.chat-toggle {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+.chat-toggle:hover {
+  background: var(--bg-soft);
+}
+
+.chat-toggle .bulldog {
+  width: 52px;
+  height: 52px;
+  margin-top: 4px;
+}
+
+.chat-avatar {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.chat-header > div {
+  flex: 1;
+  margin-left: 0.7rem;
+}
+
+.bd-ear {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.25s ease-out;
+}
+
+.bulldog[data-mood='listening'] .bd-ear-r {
+  transform: rotate(16deg) translateY(-3px);
+}
+
+.bulldog[data-mood='listening'] .bd-ear-l {
+  transform: rotate(-16deg) translateY(-3px);
+}
+
+.bd-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bd-blink 5s infinite;
+}
+
+.bd-pupil {
+  transition: transform 0.2s;
+}
+
+.bulldog[data-mood='thinking'] .bd-pupil {
+  transform: translateY(-1.4px);
+}
+
+.bd-tail {
+  transform-box: fill-box;
+  transform-origin: 0% 100%;
+}
+
+.bulldog[data-mood='idle'] .bd-tail,
+.bulldog[data-mood='listening'] .bd-tail {
+  animation: tail-wag 1.6s ease-in-out infinite alternate;
+}
+
+.bulldog[data-mood='thinking'] .bd-tail {
+  animation: tail-wag 0.28s ease-in-out infinite alternate;
+}
+
+.bd-tongue {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+
+.bulldog[data-mood='thinking'] .bd-tongue {
+  opacity: 1;
+  animation: bd-pant 0.45s ease-in-out infinite alternate;
+}
+
+.chat-bubble.typing {
+  padding: 0.5rem 0.9rem;
+}
+
+.paws-row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.paw {
+  width: 18px;
+  height: 18px;
+  fill: var(--yale-blue-mid);
+  opacity: 0.7;
+  animation: paw-step 1.2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.25s);
+}
+
+.paw:nth-child(odd) {
+  transform: translateY(-3px) rotate(14deg);
+}
+
+.paw:nth-child(even) {
+  transform: translateY(3px) rotate(-14deg);
+}
+
+/* chat results hang on a rail and fly in from the chat button */
+.results-caption {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  padding: 0.25rem 0.8rem;
+  border: 1px dashed #b89a4a;
+  border-radius: 4px 12px 12px 4px;
+  background: #fbf3dc;
+  color: var(--yale-blue-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.results-grid {
+  position: relative;
+}
+
+.results-grid::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: -8px;
+  left: -8px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #e0e0e0, #8d8d8d);
+}
+
+.result-slot {
+  position: relative;
+  padding-top: 34px;
+  transform-origin: 50% 20%;
+  animation: fly-in 1.1s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+.result-slot .result-card {
+  height: 100%;
+  animation: none;
+}
+
+/* welcome jersey */
+.welcome {
+  position: fixed;
+  inset: 0;
+  z-index: 98;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(0, 20, 42, 0.7);
+  cursor: pointer;
+  animation: results-in 0.3s ease both;
+}
+
+.welcome-card {
+  max-width: 380px;
+  padding: 1.6rem 2rem 1.8rem;
+  border-radius: 18px;
+  background: var(--chalk);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: jersey-in 0.9s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+.welcome-jersey {
+  width: 190px;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.3));
+}
+
+.welcome-card h2 {
+  margin: 0.4rem 0;
+}
+
+.welcome-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.jersey-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.jersey-no {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.35rem;
+  border-bottom: 3px solid var(--gold);
+  border-radius: 6px 6px 10px 10px;
+  background: #fff;
+  color: var(--yale-blue);
+  font-family: var(--font-display);
+  font-weight: 900;
+}
+
+@keyframes bd-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes tail-wag {
+  from {
+    transform: rotate(-14deg);
+  }
+  to {
+    transform: rotate(18deg);
+  }
+}
+
+@keyframes bd-pant {
+  from {
+    transform: scaleY(0.85);
+  }
+  to {
+    transform: scaleY(1.12);
+  }
+}
+
+@keyframes paw-step {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@keyframes fly-in {
+  0% {
+    opacity: 0;
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(0.2) rotate(24deg);
+  }
+  45% {
+    opacity: 1;
+  }
+  72% {
+    transform: translate(0, 10px) scale(1.02) rotate(-5deg);
+  }
+  86% {
+    transform: rotate(3deg);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes jersey-in {
+  from {
+    opacity: 0;
+    transform: perspective(700px) rotateY(-80deg) scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(700px) rotateY(0) scale(1);
+  }
 }

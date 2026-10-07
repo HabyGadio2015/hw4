@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth'
+import { useTheme } from '../theme'
 import type { SignupInput } from '../types'
 
 const MIN_PASSWORD_LENGTH = 8
@@ -10,6 +11,7 @@ const EMPTY: SignupInput = { first_name: '', last_name: '', email: '', password:
 
 export default function CreateAccount() {
   const { signup } = useAuth()
+  const { celebrate } = useTheme()
   const navigate = useNavigate()
   const [form, setForm] = useState<SignupInput>(EMPTY)
   const [error, setError] = useState<string | null>(null)
@@ -34,6 +36,7 @@ export default function CreateAccount() {
     setSubmitting(true)
     try {
       await signup(form)
+      celebrate() // confetti (skipped in Calm mode); the welcome jersey shows too
       navigate('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not create your account.')

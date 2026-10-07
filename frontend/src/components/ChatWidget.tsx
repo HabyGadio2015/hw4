@@ -3,6 +3,8 @@ import type { FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { fetchChatHistory, sendChat } from '../api'
 import { useAuth } from '../auth'
+import Bulldog from './Bulldog'
+import PawPrints from './PawPrints'
 import { useChatBridge } from '../chatbridge'
 import { useResults } from '../results'
 import type { ChatMessage, PageContext } from '../types'
@@ -31,6 +33,8 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [waiting, setWaiting] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  // The bulldog's mood: thinking while an answer is coming, listening while the shopper is typing.
+  const mood = waiting ? 'thinking' : input.trim() ? 'listening' : 'idle'
 
   // Page context: on a single-item page the agent is told which product "this" means.
   const productId = /^\/products\/([^/]+)$/.exec(pathname)?.[1]
@@ -95,6 +99,7 @@ export default function ChatWidget() {
       {open && (
         <div className="chat-panel" role="dialog" aria-label="Campus Customs chat">
           <div className="chat-header">
+            <Bulldog mood={mood} className="chat-avatar" />
             <div>
               <strong>Campus Customs</strong>
               <span>{user ? `Chatting as ${user.first_name || user.name}` : 'Merch assistant'}</span>
@@ -133,9 +138,7 @@ export default function ChatWidget() {
             )}
             {waiting && (
               <div className="chat-bubble assistant typing" aria-label="Assistant is typing">
-                <span />
-                <span />
-                <span />
+                <PawPrints />
               </div>
             )}
             <div ref={bottomRef} />
@@ -154,7 +157,7 @@ export default function ChatWidget() {
         </div>
       )}
       <button className="chat-toggle" onClick={() => setOpen((o) => !o)} aria-label={open ? 'Close chat' : 'Open chat'}>
-        {open ? '×' : '💬'}
+        {open ? '×' : <Bulldog mood={mood} />}
       </button>
     </div>
   )

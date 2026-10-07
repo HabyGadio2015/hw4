@@ -33,7 +33,10 @@ export default function NavBar() {
         <nav className="nav-account" aria-label="Account">
           {loading ? null : user ? (
             <>
-              <span className="nav-user">Hi, {user.first_name || user.name}</span>
+              <span className="jersey-chip" title="Your player number">
+                <span className="jersey-no">#{user.id}</span>
+                {user.first_name || user.name}
+              </span>
               <button className="btn btn-light" onClick={handleLogout}>
                 Log out
               </button>

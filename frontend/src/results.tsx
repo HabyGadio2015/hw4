@@ -1,10 +1,11 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { ProductCard } from './types'
 
 interface Results {
   title: string
   products: ProductCard[]
+  seq: number // changes on every show(), so the cards re-play their entrance
 }
 
 interface ResultsState {
@@ -18,7 +19,8 @@ const ResultsContext = createContext<ResultsState | null>(null)
 // Holds the product matches the chat agent returned, so any page can show them.
 export function ResultsProvider({ children }: { children: ReactNode }) {
   const [results, setResults] = useState<Results | null>(null)
-  const show = useCallback((title: string, products: ProductCard[]) => setResults({ title, products }), [])
+  const counter = useRef(0)
+  const show = useCallback((title: string, products: ProductCard[]) => setResults({ title, products, seq: ++counter.current }), [])
   const clear = useCallback(() => setResults(null), [])
   const value = useMemo<ResultsState>(() => ({ results, show, clear }), [results, show, clear])
   return <ResultsContext.Provider value={value}>{children}</ResultsContext.Provider>

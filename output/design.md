@@ -1,10 +1,10 @@
 # Design Proposals (Problem 10)
 
-**Status (updated 2026-10-07): batches 1 and 2 are applied (entries 1 to 8, 11, 13, and part of 14). Entries 9, 10, and 12 are still proposed and will be built in batch 3.** Each entry is written in the requested form, "I changed ____ because ____". It becomes true when the change is applied, so every entry has a Status line that starts as *Proposed* and is updated to *Applied* (with a note on what was verified).
+**Status (updated 2026-10-07): all 14 entries are applied, built in three batches.** Each Status line says what was checked. Each entry is written in the requested form, "I changed ____ because ____". It becomes true when the change is applied, so every entry has a Status line that starts as *Proposed* and is updated to *Applied* (with a note on what was verified).
 
 **The big idea: make the website feel like the real shop at 57 Broadway.** Instead of a generic blue web store, the site becomes a storefront: a striped awning, a window display, a lit OPEN sign, a rail of garments on hangers with paper price tags, felt-letter headlines with stitched edges, pennant bunting, and a bulldog helper in the chat. Every proposal below uses that one idea, so the site feels like a place and not a template.
 
-**Rules for every entry:** original artwork only (no Yale or Campus Customs logos, and not the university's mascot); animations use only transform and opacity so they stay smooth; all motion stops for shoppers who prefer reduced motion; text keeps strong contrast.
+**Rules for every entry:** original artwork only (no Yale or Campus Customs logos, and not the university's mascot); most animations use only transform and opacity so they stay smooth (a few small ones animate a color, a shadow, or the width of a stock bar); all motion stops for shoppers who prefer reduced motion; text keeps strong contrast.
 
 | # | Area | Proposal (short) |
 |---|---|---|
@@ -81,12 +81,12 @@
 ### 9. A bulldog helper with moods
 - **I changed** the plain chat button and dots to an original bulldog-helper illustration (not the university's mascot) whose ears perk up while the shopper types, whose tail wags while it thinks, and whose paw prints walk across the typing indicator, **because** waiting for an answer feels shorter when something friendly is moving, and a character with personality makes people more willing to ask, which leads to more product matches.
 - It should help customers stick around and buy because a friendly character makes asking questions feel easy, and getting quick answers is what turns browsing into buying.
-- **Status:** Proposed.
+- **Status:** Applied (batch 3). An original cartoon bulldog (not the university's mascot) is now the chat button and the avatar in the chat header. Idle: a slow tail wag and blinking. While the shopper types: the ears tilt up (measured at about 16 degrees). While an answer is coming: a fast tail wag, eyes looking up, a panting tongue, and four paw prints that light up one after another in the typing bubble. Everything holds still in Calm mode. **Difference from the proposal:** none.
 
 ### 10. Results that hang up on a rail
 - **I changed** the way chat results appear (cards fading in) to cards that fly from the chat to a hanger rail on the page and swing into place, with a caption such as "Hung up 8 hoodies for you," **because** it makes the link between "I asked" and "the page changed" impossible to miss, and it turns the best moment of the experience (finding items) into a small celebration.
 - It should help customers stick around and buy because the items they asked for appear on the page right away, so they can click straight through to buy instead of searching again.
-- **Status:** Proposed.
+- **Status:** Applied (batch 3). Chat results hang from clips on a metal rail under a ribbon that reads "Hung up N items for you" (checked with 5 hoodies: "Hung up 5 items for you", 5 clips, rail drawn). Each card flies in from the chat button and swings into place; the starting offsets are measured from the real positions on screen, and the entrance replays each time results are shown. This was checked with a stubbed chat reply that carried real catalogue data, not a live model call.
 
 ## Interactive fun
 
@@ -98,7 +98,7 @@
 ### 12. Welcome to the team
 - **I changed** the plain sign-up result to a short confetti burst and a "Welcome to the team, #4" jersey-number reveal, and a small jersey chip in the menu bar for logged-in shoppers, **because** a memorable welcome makes people feel they joined something, which brings them back, and it makes the logged-in state visible at a glance.
 - It should help customers stick around and buy because a memorable welcome makes people feel they joined the team, which gives them a reason to log in and come back.
-- **Status:** Proposed.
+- **Status:** Applied (batch 3). After creating an account the shopper sees a confetti burst and a welcome jersey with their name and player number (their account number), and the menu bar shows a jersey chip such as "#42 Haby". Checked with a stubbed signup, so no test account was written: the heading read "Welcome to the team, Haby!", the jersey showed HABY and 42, 70 confetti pieces appeared, and the chip appeared in the menu bar. The overlay closes on a click or after 6 seconds, and it appears only after signing up, not after logging in.
 
 ## Trust
 
@@ -112,4 +112,4 @@
 ### 14. Calm mode, contrast, and lazy loading
 - **I changed** the motion settings so every animation uses only transform and opacity, stops when the visitor's device asks for reduced motion, and can be switched off with a visible "Calm mode" button, and I kept text contrast high and product images lazy-loaded, **because** a fun site is only good if it also stays fast on a phone and usable for people sensitive to motion or with low vision, which includes some of the parents and alumni who shop here.
 - It should help customers stick around and buy because a site that stays fast and comfortable for everyone, including shoppers sensitive to motion or with low vision, doesn't push anyone away.
-- **Status:** Partly applied (batch 1). Done: a visible "Calm mode" button that stops every animation and the confetti (checked: the awning and pennant animations switched to none), Calm mode starts on automatically for visitors whose device asks for reduced motion, and the animations added so far use only transform and opacity. Not yet done: a measured text-contrast check, which will happen when the remaining batches are finished.
+- **Status:** Applied (batches 1 and 3). Calm mode is a visible button that stops every animation and the confetti, it starts on automatically for visitors whose device asks for reduced motion, and the page-change doors are hidden in it. **Contrast:** I measured 22 text-and-background pairs against the 4.5:1 target. 20 passed and 2 failed: blue links on the cream background (4.49) and the text on out-of-stock size chips (2.61). Both are fixed (the link blue is slightly darker, 4.64 on cream; the out-of-stock text is a darker gray, 4.64), and all 22 now pass. Product photos load lazily. **Not measured:** how smooth the animations are on a real phone. **Correction:** the sentence above says every animation uses only transform and opacity; a few small ones (a color change, a shadow, and the width of the stock bar) do not.
