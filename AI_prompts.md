@@ -83,3 +83,13 @@ Feedback from Haby: In terms of spending, my assignment is now costing a fractio
 4. Double check there are no mistakes
 
 Feedback from Haby: As expected, this model makes more mistakes. I needed to ask it to double check its work and ensure that its work is above board.
+
+## Problem 9: Usability Improvements
+
+1. Problem 9: Usability Improvements       Now that the core shop works, improve it. Choose and implement (1) 2 front-end usability improvements (2) 2 agent / backend usability improvements. Front-end improvements are things that make the agent output better, more accurate, or safer. These could be new agent tools or things that make the agent run faster and cheaper. Write output/usability.md BEFORE OR AS I BUILD. For each of the improvements, I want you to say: (1) What you added (2) Why it helps a Campus Customs shopper or the business. Then make sure all improvements actually show up in the running app. Graders will read the write-up and look for the features.          Problem 10: Style the Website    Add creative design so the site feels like a real Campus Customs storefront - fonts, color, hierachy, motion, product presentation, chat feel. I will get more points for imaginative and innovative design. I need this to look unlike any other similar project out there. I want it to be highly animative and fun and interactive.
+2. Stop
+3. Let's do it one at a time
+4. Wait
+5. Problem 9: Usability Improvements       Now that the core shop works, improve it. Choose and implement (1) 2 front-end usability improvements (2) 2 agent / backend usability improvements. Front-end improvements are things that make the agent output better, more accurate, or safer. These could be new agent tools or things that make the agent run faster and cheaper. Write output/usability.md BEFORE OR AS I BUILD. For each of the improvements, I want you to say: (1) What you added (2) Why it helps a Campus Customs shopper or the business. Then make sure all improvements actually show up in the running app. Graders will read the write-up and look for the features.
+
+Feedback from Haby: 
