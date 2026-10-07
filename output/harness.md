@@ -493,6 +493,8 @@ npm run dev -- --port 5174
 ```
 Then open http://localhost:5174. To check everything still works (no paid model calls): `cd backend && .venv/bin/python regression_check.py`.
 
+*Note added for the GitHub repository (Problem 13): `requirements.txt` is in the project root, not in `backend/`, so from `backend/` install with `pip install -r ../requirements.txt`. The project folder is named `hw4` (earlier text says `HW 4`), and the `.env` file goes in that folder, next to `.env.example`. The README has the current steps.*
+
 ### 10.7 The audit trail (`output/audit_trail.json`)
 
 - **What it holds:** one entry per chat turn or stopped message: time (UTC), who (`guest` or `user:<id>`), the page path, the stop reason, the model's finish reason, model requests, each tool call with short args and result, cards returned, token counts, duration, and an error class name. It never holds the shopper's message, name, or email.

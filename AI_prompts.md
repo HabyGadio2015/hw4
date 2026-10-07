@@ -169,5 +169,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 5. 1b, show me everything down here
 6. i meanthe hw4/ list i just wrote out
 7. I dont want my email visible. I want you to replace anywhere my email is visible to hidden@gmail.com same with my username Hidden2015
+8. Option X. For 2, publish with HabyGadio2015 but i dont want my username visible to the public or anyone seeing the website, keep hidden@gmail.com
 
 Feedback from Haby: 

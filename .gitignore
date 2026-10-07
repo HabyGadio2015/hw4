@@ -23,3 +23,8 @@ backend/TEST_ACCOUNTS.md
 # Exception: the three Problem 11 screenshots of the running site are part of the deliverable (they are not the product photo files)
 !output/app_check_images/
 !output/app_check_images/*.png
+
+# Kept on this computer only: not part of the submission layout
+README.txt
+folder_joke.txt
+output/research_yalebulldogblue.md

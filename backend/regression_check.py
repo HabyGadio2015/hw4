@@ -303,6 +303,27 @@ def check_finished_harness():
             assert f"**{name}**" in text, f"model {name} is not documented in harness section 10"
 
 
+def check_repo_layout():
+    files = set(subprocess.run(["git", "ls-files"], cwd=PROJECT, capture_output=True, text=True, check=True).stdout.split("\n")) - {""}
+    expected = {
+        "AI_prompts.md", "requirements.txt", ".env.example", ".gitignore", "README.md",
+        "backend/main.py", "backend/agent.py", "backend/models.py", "backend/tools.py", "backend/prompts/prompt.md",
+        "output/harness.md", "output/design.md", "output/usability.md", "output/app_check.html", "output/audit_trail.json",
+        "output/app_check_images/inventory.png", "output/app_check_images/search_cards.png", "output/app_check_images/usability_finder.png",
+    }
+    extras = {"backend/auth.py", "backend/memory.py", "backend/guard.py", "backend/audit.py", "backend/regression_check.py"}
+    missing = expected - files
+    assert not missing, f"missing from the repository: {sorted(missing)}"
+    outside = {f for f in files if not f.startswith("frontend/")} - expected - extras
+    assert not outside, f"files outside the agreed layout: {sorted(outside)}"
+    assert "frontend/package.json" in files
+    example = (PROJECT / ".env.example").read_text()
+    assert "PORTKEY_API_KEY=your-portkey-api-key-here" in example, ".env.example must hold placeholders only"
+    html = (PROJECT / "output" / "app_check.html").read_text()
+    for image in re.findall(r'src="(app_check_images/[^"]+)"', html):
+        assert f"output/{image}" in files, f"app_check.html links to an image that is not in the repository: {image}"
+
+
 GROUPS = [
     ("P2  database", check_database),
     ("P4  auth + harness claims", check_auth_and_harness_claims),
@@ -312,6 +333,7 @@ GROUPS = [
     ("P12 audit trail (append-only)", check_audit_trail),
     ("P12 filtered replies + guest history", check_filters_and_history),
     ("P12 finished harness matches the code", check_finished_harness),
+    ("P13 repository layout matches the agreed tree", check_repo_layout),
     ("git hygiene", check_git_hygiene),
     ("front end tsc + lint", check_frontend),
     ("live API smoke test", check_live_api),
