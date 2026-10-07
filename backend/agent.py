@@ -9,11 +9,13 @@ main.py calls `chat()` for every POST /api/chat. The agent is built once, on fir
 
 from __future__ import annotations
 
+import logging
 import re
+import time
 from functools import lru_cache
 
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, UserPromptPart
+from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, ToolCallPart, UserPromptPart
 from pydantic_ai.usage import UsageLimits
 
 from models import AgentReply, ChatResponse, ChatTurn, PageContext, ShopDeps, UserPublic
@@ -95,12 +97,17 @@ def to_message_history(history: list[ChatTurn]) -> list[ModelMessage]:
     return messages
 
 
+logger = logging.getLogger("campus_customs.chat")
+TOOL_NAMES = {tool.__name__ for tool in AGENT_TOOLS}
+
+
 async def chat(
     message: str,
     history: list[ChatTurn],
     user: UserPublic | None = None,
     page: PageContext | None = None,
 ) -> ChatResponse:
+    started = time.perf_counter()
     result = await build_agent().run(
         message,
         deps=make_deps(user, page),
@@ -108,6 +115,25 @@ async def chat(
         usage_limits=USAGE_LIMITS,
     )
     reply: AgentReply = result.output
+    tools_used = [
+        part.tool_name
+        for msg in result.new_messages()
+        if isinstance(msg, ModelResponse)
+        for part in msg.parts
+        if isinstance(part, ToolCallPart) and part.tool_name in TOOL_NAMES
+    ]
+    usage = result.usage  # a property in this PydanticAI version, not a method
+    # One line per chat for cost monitoring. Never logs the message text.
+    logger.info(
+        "chat user=%s tools=%s requests=%s tokens_in=%s tokens_out=%s ms=%d",
+        user.id if user else "guest", tools_used, usage.requests, usage.input_tokens, usage.output_tokens,
+        (time.perf_counter() - started) * 1000,
+    )
     # Cards are rebuilt from the database, so a price or stock number on a card can never be invented.
     cards = product_cards(reply.product_ids)
-    return ChatResponse(reply=reply.reply, results_title=reply.results_title if cards else None, products=cards)
+    return ChatResponse(
+        reply=reply.reply,
+        results_title=reply.results_title if cards else None,
+        products=cards,
+        tools_used=tools_used,
+    )

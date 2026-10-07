@@ -277,3 +277,12 @@ New "Tools: product info and stock" section: a table matching each kind of quest
 - **Prompt-injection hardening:** the page path comes from the browser, and it was being copied into the agent's instructions. `describe_context()` now includes a path only if it is a plain site path (`/` followed by letters, digits, `/`, `_`, `-`, at most 100 characters). A hostile or overlong path is dropped. Product details still come from the database, never from the browser.
 - **Button fix:** on a single-item page the results panel is hidden by design, so the saved-chat button "↑ Show these N items on the page" did nothing visible. It now takes the shopper to `/products`, where the panel shows. Tested with a logged-in shopper: the button went to `/products`, showed the 8 saved cards (title "Earlier results"), and a card still opened its detail page. No console errors.
 - **Re-checked and fine:** compile, pyflakes, tsc, and lint are clean. No stale `shopper_first_name` references remain. The database, images, `.env`, and `.venv` are not tracked.
+
+## 8. Usability Improvements (Problem 9)
+
+Full write-up with evidence: [usability.md](usability.md).
+
+- **Tools (section 5, extended):** new `get_product_snapshot(product)` returns `ProductSnapshot` (status, name, garment type, description, colors, exact price, every size's availability, total in stock, message) from one database read. It uses the same statuses as the other lookups (`not_found`, `out_of_stock`, `size_not_found`). The prompt table and a "Faster" bullet tell the agent to prefer it when a question needs more than one fact.
+- **Safety (section 4, extended):** `backend/guard.py` runs before the model, in `POST /api/chat`. A valid card number (Luhn check), an SSN, or "password / PIN / CVV is ..." gets a fixed safety reply. The message is **not** sent to the model and **not** saved to `chat_messages`.
+- **API contract:** `ChatResponse.tools_used` lists the catalogue tools the agent called that turn. Every chat also logs one server line (`chat user=… tools=… requests=… tokens_in=… tokens_out=… ms=…`) and never logs the message text.
+- **Shop pages:** a product finder on the Products page and conversation starters in the chat (see usability.md).

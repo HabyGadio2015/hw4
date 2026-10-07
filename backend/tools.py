@@ -22,6 +22,7 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from models import (
     DescriptionLookup,
     PriceLookup,
+    ProductSnapshot,
     ProductCard,
     ProductDetail,
     ProductMatch,
@@ -407,4 +408,42 @@ def check_stock(ctx: RunContext[ShopDeps], product: str, size: str | None = None
     return lookup_stock(product, size)
 
 
-AGENT_TOOLS = [search_products, get_product_description, get_price, check_stock]
+def lookup_snapshot(product: str) -> ProductSnapshot:
+    with connect() as conn:
+        row = find_product_row(conn, product)
+        if row is None:
+            return ProductSnapshot(status="not_found", requested=product, message=f"{NOT_FOUND}: no product '{product}'.")
+        stock = _stock_by_product(conn, [row["product_id"]])[row["product_id"]]
+    sizes = [
+        SizeAvailability(size=s.size, quantity=s.quantity, status="in_stock" if s.quantity > 0 else "out_of_stock")
+        for s in stock
+    ]
+    in_stock = [f"{a.size} ({a.quantity})" for a in sizes if a.status == "in_stock"]
+    out = [a.size for a in sizes if a.status == "out_of_stock"]
+    return ProductSnapshot(
+        status="found",
+        requested=product,
+        product_id=row["product_id"],
+        name=row["name"],
+        garment_type=row["garment_type"],
+        description=row["description"],
+        colors=json.loads(row["colors"]),
+        price=row["price"],
+        sizes=sizes,
+        total_in_stock=sum(s.quantity for s in stock),
+        message=f"{row['name']} costs ${row['price']:.2f}. In stock: {', '.join(in_stock) or 'none'}. Out of stock: {', '.join(out) or 'none'}.",
+    )
+
+
+def get_product_snapshot(ctx: RunContext[ShopDeps], product: str) -> ProductSnapshot:
+    """One call for everything about a product: description, colors, exact price, and stock for every size.
+
+    Prefer this when the shopper wants more than one fact about the same product.
+
+    Args:
+        product: The exact product_id from search_products (or the product's exact name).
+    """
+    return lookup_snapshot(product)
+
+
+AGENT_TOOLS = [search_products, get_product_snapshot, get_product_description, get_price, check_stock]

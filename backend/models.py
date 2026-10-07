@@ -105,6 +105,7 @@ class ChatResponse(BaseModel):
     reply: str
     results_title: str | None = None  # heading for the cards on the page, e.g. "Hoodies"
     products: list[ProductCard]
+    tools_used: list[str] = Field(default_factory=list)  # catalogue tools the agent called this turn
 
 
 class ChatHistoryItem(BaseModel):
@@ -207,6 +208,23 @@ class StockLookup(BaseModel):
     requested_size: str | None = None
     product_id: str | None = None
     name: str | None = None
+    sizes: list[SizeAvailability] = Field(default_factory=list)
+    total_in_stock: int | None = None
+    message: str
+
+
+class ProductSnapshot(BaseModel):
+    """Result of get_product_snapshot: everything about one product from a single database read."""
+
+    status: LookupStatus
+    requested: str
+    product_id: str | None = None
+    name: str | None = None
+    garment_type: str | None = None
+    description: str | None = None
+    colors: list[str] = Field(default_factory=list)
+    price: float | None = None
+    currency: Literal["USD"] = "USD"
     sizes: list[SizeAvailability] = Field(default_factory=list)
     total_in_stock: int | None = None
     message: str
