@@ -125,5 +125,6 @@ Feedback from Haby: I appreciated that the agent asked me prior to each batch ru
 ## Problem 11: Site Testing App Check
 
 1. Problem 11: Site Testing App Check      Test the live site and document it in output/app_check.html (a page you can double-click open). Include clear screenshots and short captions for (1) Chat checking the inventory level of an item (honest stock/price from the DB) (2) the dynamic search-result cards appearing after a category question (e.g. hoodies) (3) One of the usability features you added in Prob 9. Make the HTML easy to grade: heading for each check, screenshot, one or two sentences on what the screenshot proves. Put the screenshot image files in output/app_check_images/ and link them from app_check.html with relative paths (for ex app_check_images/inventory.png
+2. for #2 is that necessary
 
 Feedback from Haby: 
