@@ -61,3 +61,7 @@ Feedback from Haby: The agent took almost 5 minutes to do this problem and used 
 4. Also how much is 3k in dollars approximately
 
 Feedback from Haby: Now my agent is automatically informing me of its token use. I have also asked it to tell me the total price. Just Problem 6 alone cost me almost 2 dollars. That is VERY expensive.  The other problem is if I change from Opus to Sonnet, it will cost me even more because it says it will have to re-read everyhting. Every problem should only be costing me a few cents - at this rate, I will be out of money. My next prompt will be focused on cost-optimization. I know that agents are motivated by rewards, so I will give it a reward at the end if it, if it saves me money!
+
+## Between Problems 6 and 7
+
+1. Great, let's do that
