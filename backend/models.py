@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 MAX_MESSAGE_CHARS = 1000
 MAX_HISTORY_TURNS = 20
-MAX_PRODUCT_CARDS = 6
+MAX_PRODUCT_CARDS = 12
 
 
 # ---------- Catalogue (Problem 3) ----------
@@ -82,6 +82,9 @@ class ProductCard(BaseModel):
 
     product_id: str
     name: str
+    garment_type: str
+    short_info: str
+    colors: list[str]
     price: float
     image_url: str
     in_stock: bool
@@ -92,6 +95,7 @@ class ChatResponse(BaseModel):
     """What POST /api/chat returns to the website."""
 
     reply: str
+    results_title: str | None = None  # heading for the cards on the page, e.g. "Hoodies"
     products: list[ProductCard]
 
 
@@ -128,6 +132,11 @@ class AgentReply(BaseModel):
             "product_id values, copied exactly from tool results, of the items your reply recommends or "
             "discusses. The website shows these as product cards. Empty if no specific product fits."
         ),
+    )
+    results_title: str | None = Field(
+        default=None,
+        max_length=60,
+        description="Short heading for the product cards on the page, e.g. 'Hoodies' or 'Berkeley gear under $60'.",
     )
 
 

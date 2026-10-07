@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { formatPrice, sendChat } from '../api'
+import { sendChat } from '../api'
+import { useResults } from '../results'
 import type { ChatMessage } from '../types'
 
 const GREETING: ChatMessage = {
@@ -10,6 +10,7 @@ const GREETING: ChatMessage = {
 }
 
 export default function ChatWidget() {
+  const { show } = useResults()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING])
   const [input, setInput] = useState('')
@@ -31,6 +32,11 @@ export default function ChatWidget() {
     try {
       const reply = await sendChat(text, previous)
       setMessages((m) => [...m, reply])
+      if (reply.products && reply.products.length > 0) {
+        // The API contract: matching products come back as structured cards, and the page renders them.
+        show(reply.resultsTitle ?? text, reply.products)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     } catch (err) {
       const content = err instanceof Error ? err.message : 'Sorry, something went wrong. Please try again.'
       setMessages((m) => [...m, { role: 'assistant', content }])
@@ -57,19 +63,8 @@ export default function ChatWidget() {
               <div key={i} className={`chat-turn ${m.role}`}>
                 <div className={`chat-bubble ${m.role}`}>{m.content}</div>
                 {m.products && m.products.length > 0 && (
-                  <div className="chat-products">
-                    {m.products.map((p) => (
-                      <Link key={p.product_id} to={`/products/${p.product_id}`} className="chat-product">
-                        <img src={p.image_url} alt={p.name} />
-                        <div>
-                          <span className="chat-product-name">{p.name}</span>
-                          <span className="chat-product-price">{formatPrice(p.price)}</span>
-                          <span className="chat-product-stock">
-                            {p.in_stock ? `In stock: ${p.sizes_in_stock.join(', ')}` : 'Sold out'}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
+                  <div className="chat-showing">
+                    ↑ Showing {m.products.length} {m.products.length === 1 ? 'item' : 'items'} on the page
                   </div>
                 )}
               </div>

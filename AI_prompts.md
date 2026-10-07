@@ -65,3 +65,9 @@ Feedback from Haby: Now my agent is automatically informing me of its token use.
 ## Between Problems 6 and 7
 
 1. Great, let's do that
+
+## Problem 7: Chat Search That Updates The Page
+
+1. Problem 7: Chat Search That Updates The Page     Now we will add a neat feature to the site. When a custom asks about a type of item - for example "what hoodies do you have" - you should search the catalogue and the website should dynamically show those matching items as product cards (image, price, name, short info). This is an API contract: the agent returns structured  product matches and then the frontend renders them on the website. I want it to look beautiful!!
+
+Feedback from Haby: 

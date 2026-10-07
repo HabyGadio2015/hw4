@@ -49,5 +49,5 @@ export async function sendChat(message: string, history: ChatMessage[]): Promise
     // Text-only history; the backend rebuilds product cards itself.
     history: history.slice(-MAX_HISTORY_TURNS).map(({ role, content }) => ({ role, content })),
   })
-  return { role: 'assistant', content: res.reply, products: res.products }
+  return { role: 'assistant', content: res.reply, products: res.products, resultsTitle: res.results_title ?? undefined }
 }

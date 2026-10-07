@@ -73,4 +73,5 @@ async def chat(message: str, history: list[ChatTurn], shopper_first_name: str | 
     )
     reply: AgentReply = result.output
     # Cards are rebuilt from the database, so a price or stock number on a card can never be invented.
-    return ChatResponse(reply=reply.reply, products=product_cards(reply.product_ids))
+    cards = product_cards(reply.product_ids)
+    return ChatResponse(reply=reply.reply, results_title=reply.results_title if cards else None, products=cards)

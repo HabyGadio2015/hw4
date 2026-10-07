@@ -44,7 +44,7 @@ DEFAULT_BASE_URL = "https://api.portkey.ai/v1"
 REQUEST_TIMEOUT_SECONDS = 60
 
 SIZE_ORDER = ["XS", "S", "M", "L", "XL", "XXL"]
-MAX_SEARCH_RESULTS = 8
+MAX_SEARCH_RESULTS = 12
 
 # Shopper words → words used in the catalogue.
 SYNONYMS = {
@@ -173,6 +173,12 @@ def fetch_product_detail(product_id: str) -> ProductDetail | None:
     )
 
 
+def short_info(description: str, limit: int = 110) -> str:
+    """First sentence of the catalogue description, trimmed for a card."""
+    first = description.split(". ")[0].strip().rstrip(".")
+    return first if len(first) <= limit else first[: limit - 1].rstrip() + "…"
+
+
 def product_cards(product_ids: list[str]) -> list[ProductCard]:
     """Turn the agent's product_ids into cards using DB values only; unknown ids are dropped."""
     ids = list(dict.fromkeys(product_ids))  # de-duplicate, keep order
@@ -191,6 +197,9 @@ def product_cards(product_ids: list[str]) -> list[ProductCard]:
             ProductCard(
                 product_id=pid,
                 name=rows[pid]["name"],
+                garment_type=rows[pid]["garment_type"],
+                short_info=short_info(rows[pid]["description"]),
+                colors=json.loads(rows[pid]["colors"]),
                 price=rows[pid]["price"],
                 image_url=image_url(rows[pid]["image_file_path"]),
                 in_stock=bool(sizes_in_stock),
@@ -264,7 +273,7 @@ def search_products(
     max_price: float | None = None,
     in_stock_only: bool = False,
 ) -> list[ProductMatch]:
-    """Search the Campus Customs catalogue. Returns up to 8 matches with exact price and the sizes in stock.
+    """Search the Campus Customs catalogue. Returns up to 12 matches with exact price and the sizes in stock.
 
     Args:
         query: Keywords from the shopper, e.g. "navy hoodie", "Berkeley quarter zip", "baseball tee".

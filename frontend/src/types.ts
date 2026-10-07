@@ -25,6 +25,9 @@ export interface ProductDetail extends ProductSummary {
 export interface ProductCard {
   product_id: string
   name: string
+  garment_type: string
+  short_info: string
+  colors: string[]
   price: number
   image_url: string
   in_stock: boolean
@@ -35,10 +38,12 @@ export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
   products?: ProductCard[]
+  resultsTitle?: string
 }
 
 export interface ChatResponse {
   reply: string
+  results_title: string | null
   products: ProductCard[]
 }
 

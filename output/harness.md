@@ -195,3 +195,26 @@ New "Tools: product info and stock" section: a table matching each kind of quest
 ### Verified (2026-10-07)
 - Offline: in stock (M: 5), out of stock (XS: 0), size not found (XXXL), size aliases ("medium", "2xl"), product not found, and lookup by name. All match the DB.
 - Live: "Baseball Left Chest Crewneck price, XS / medium / XXXL, how many M?" → "$58.00. XS is Out of Stock, medium is in stock with 5 available, XXXL is Not Found… Sizes offered: XS–XXL" (8.6 s). "Yale Pink Unicorn Hoodie price, L?" → "Not Found in our catalogue, so I can't confirm a price or Large availability" plus a real alternative (5.4 s).
+
+## 6. Chat Search That Updates The Page (Problem 7)
+
+**The API contract:** the agent doesn't write the cards; it returns structured matches, and the front end renders them.
+
+`POST /api/chat` → `ChatResponse`:
+- `reply`: a short message for the chat bubble.
+- `results_title`: a short heading for the page (e.g. "Yale Hoodies"), or `null`.
+- `products: ProductCard[]`: up to 12 matches. Each card has `product_id`, `name`, `garment_type`, `short_info`, `colors`, `price`, `image_url`, `in_stock`, `sizes_in_stock`.
+
+**How a question becomes cards**
+1. The shopper asks "what hoodies do you have?". The agent calls `search_products` (now up to 12 results) and returns `AgentReply {reply, product_ids, results_title}`.
+2. `agent.chat()` runs `product_cards()`: every card is rebuilt from the database, so names, prices, sizes, and images are real. Unknown ids are dropped. `short_info` is the first sentence of the catalogue description.
+3. `ChatWidget` receives the response, calls `show(title, products)` on the shared `ResultsProvider` (`frontend/src/results.tsx`), and scrolls to the top. `ResultsPanel` (under the nav, on every page) draws the cards. The chat bubble only says "↑ Showing N items on the page".
+4. Each card links to its product page. "Clear results ×" hides the panel. Follow-up messages with no products leave the current cards in place.
+
+**Look:** a soft Yale-blue gradient panel, a serif title, and a responsive grid. Cards have a garment-type chip, a "Sold out" chip when applicable, a large photo that zooms on hover, a 2-line description, size chips, and a big serif price. They fade up one after another, and the animation is off for visitors who prefer reduced motion.
+
+**Prompt:** a new "Showing items on the page" section in `prompts/prompt.md`: search, then return the matching ids (best first, at most 12) with a short title; keep the text short because the cards carry the details; return only real matches; no matches means an empty list and an honest answer.
+
+**Code changes:** `models.py` (`ProductCard` fields, `ChatResponse.results_title`, `AgentReply.results_title`, `MAX_PRODUCT_CARDS` 6 → 12), `tools.py` (`short_info`, richer `product_cards`, search limit 12), `agent.py`, `ResultsPanel.tsx`, `results.tsx`, `ChatWidget.tsx`, `App.css`.
+
+**Verified (2026-10-07):** offline compile, pyflakes, tsc, and lint all pass. Live: "what hoodies do you have?" → the title "Yale Hoodies" and 12 cards (e.g. Basic Hoodie Big Yale $68.00 with sizes XS–XXL, Brooks Brothers Full Zip $88.00) rendered on the page, with a short chat reply. Checked on screen.
