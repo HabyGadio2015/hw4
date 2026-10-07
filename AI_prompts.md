@@ -102,3 +102,4 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 2. I want you to reread everything and ensure correctness of past steps within every new step. Also, What did you write in output/harness.md for Prob 4, copy/paste it here so I can see it.
 3. Yes
 4. Show  me what you put in output/harness.md for Prob 5
+5. Now show me output/harness.md in Prob 6
