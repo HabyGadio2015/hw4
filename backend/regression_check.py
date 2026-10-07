@@ -130,7 +130,12 @@ def check_context_memory_guard():
 
 def check_git_hygiene():
     files = subprocess.run(["git", "ls-files"], cwd=PROJECT, capture_output=True, text=True, check=True).stdout.split("\n")
-    bad = [f for f in files if re.search(r"\.db$|\.sqlite|\.jpe?g$|\.png$|\.env$|(^|/)\.venv/|node_modules", f)]
+    # the Problem 11 screenshots are allowed; every other image, the database, .env, .venv and node_modules are not
+    bad = [
+        f
+        for f in files
+        if re.search(r"\.db$|\.sqlite|\.jpe?g$|\.png$|\.env$|(^|/)\.venv/|node_modules", f) and not f.startswith("output/app_check_images/")
+    ]
     assert not bad, f"tracked files that must stay out of git: {bad[:5]}"
     assert subprocess.run(["git", "check-ignore", "-q", "data/campus_customs.db"], cwd=PROJECT).returncode == 0
     assert "backend/TEST_ACCOUNTS.md" not in files, "the local test-logins file must stay out of the repository"
