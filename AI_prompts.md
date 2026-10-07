@@ -103,3 +103,4 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 3. Yes
 4. Show  me what you put in output/harness.md for Prob 5
 5. Now show me output/harness.md in Prob 6
+6. And Prob 7
