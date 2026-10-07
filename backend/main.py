@@ -15,10 +15,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 import agent
+import audit
 import guard
 import memory
 from auth import current_user, router as auth_router
-from models import ChatHistoryItem, ChatRequest, ChatResponse, ProductDetail, ProductSummary
+from models import AuditEntry, ChatHistoryItem, ChatRequest, ChatResponse, ProductDetail, ProductSummary
 from tools import PRODUCTS_DIR, fetch_product_detail, list_product_summaries
 
 logger = logging.getLogger("campus_customs")
@@ -72,10 +73,11 @@ def chat_history(request: Request) -> list[ChatHistoryItem]:
 
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(body: ChatRequest, request: Request) -> ChatResponse:
+    user = current_user(request)  # optional: logged-in shoppers get memory and personalization
     # Card numbers, SSNs, and passwords never reach the model or the saved chat history.
     if guard.contains_sensitive(body.message):
+        audit.record(AuditEntry(time=audit.now_iso(), user=f"user:{user.id}" if user else "guest", stop_reason="guard_blocked"))
         return ChatResponse(reply=guard.SENSITIVE_REPLY, products=[])
-    user = current_user(request)  # optional: logged-in shoppers get memory and personalization
     # A logged-in shopper's history comes from the database, not from the browser, so it can't be spoofed.
     history = memory.recent_turns(user.id) if user else body.history
     try:

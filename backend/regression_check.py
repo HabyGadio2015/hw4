@@ -181,9 +181,55 @@ def check_live_api():
     cookie = headers["set-cookie"].split(";")[0]
     assert http("/api/auth/me", cookie=cookie)[0] == 200 and http("/api/auth/me")[0] == 401
     assert http("/api/chat/history", cookie=cookie)[0] == 200 and http("/api/chat/history")[0] == 401
-    status, body, _ = http("/api/chat", {"message": "my card is 4242 4242 4242 4242", "history": []})
-    reply = json.loads(body)
-    assert status == 200 and reply["reply"].startswith("For your safety") and reply["tools_used"] == []
+    # (The guard is covered offline above; sending a card number to the running server here would add a line to the real audit trail.)
+
+
+def check_audit_trail():
+    import tempfile
+
+    import agent
+    import audit
+    from models import AuditEntry
+    from pydantic_ai.models.test import TestModel
+    from tools import AGENT_TOOLS
+
+    def entry(n: int) -> AuditEntry:
+        return AuditEntry(time=audit.now_iso(), user=f"user:{n}", stop_reason="answered")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "audit_trail.json"
+        audit.append_entry(entry(1), path)
+        first = path.read_bytes()
+        assert json.loads(first)[0]["user"] == "user:1"
+        audit.append_entry(entry(2), path)
+        audit.append_entry(entry(3), path)
+        data = path.read_bytes()
+        assert [e["user"] for e in json.loads(data)] == ["user:1", "user:2", "user:3"]
+        assert data.startswith(first[:-3]), "earlier bytes must never change; only the closing bracket moves"
+        # a damaged file is left exactly as it is; the entry is kept in the pending file instead
+        bad, pending = Path(tmp) / "bad.json", Path(tmp) / "pending.jsonl"
+        bad.write_text("this is not a json array")
+        audit.record(entry(4), path=bad, pending=pending)
+        assert bad.read_text() == "this is not a json array" and len(pending.read_text().splitlines()) == 1
+        # a real agent turn writes one entry with its tool calls, using a stand-in model (no paid call)
+        agent_path = Path(tmp) / "agent_audit.json"
+        old_path, old_make = audit.AUDIT_PATH, agent.make_model
+        audit.AUDIT_PATH, agent.make_model = agent_path, (lambda: TestModel())
+        agent.build_agent.cache_clear()
+        try:
+            asyncio.run(agent.chat("hi", []))
+        finally:
+            audit.AUDIT_PATH, agent.make_model = old_path, old_make
+            agent.build_agent.cache_clear()
+        logged = json.loads(agent_path.read_text())[0]
+        assert logged["stop_reason"] == "answered" and logged["user"] == "guest"
+        assert {c["tool"] for c in logged["tool_calls"]} == {t.__name__ for t in AGENT_TOOLS}
+        assert all(c["args"] and c["result"] for c in logged["tool_calls"])
+    real = audit.REAL_AUDIT_PATH  # the real trail must still be a valid JSON array (it is never written by this script)
+    if real.exists() and real.stat().st_size:
+        entries = json.loads(real.read_text())
+        assert isinstance(entries, list) and all({"time", "stop_reason", "user"} <= set(e) for e in entries)
+        return f"(real trail: {len(entries)} entries, valid)"
 
 
 GROUPS = [
@@ -192,12 +238,20 @@ GROUPS = [
     ("P3/6/7 tools + cards", check_tools_and_cards),
     ("P5/7/9 agent wiring + prompt", check_agent_wiring),
     ("P8/9 context, memory, guard", check_context_memory_guard),
+    ("P12 audit trail (append-only)", check_audit_trail),
     ("git hygiene", check_git_hygiene),
     ("front end tsc + lint", check_frontend),
     ("live API smoke test", check_live_api),
 ]
 
 if __name__ == "__main__":
+    import tempfile
+
+    import audit as _audit
+
+    # Tests that run the agent write their audit entries to a throwaway folder, never to the real trail.
+    _tmp = Path(tempfile.mkdtemp(prefix="cc_audit_test_"))
+    _audit.AUDIT_PATH, _audit.PENDING_PATH = _tmp / "audit_trail.json", _tmp / "audit_trail.pending.jsonl"
     failed = 0
     for name, fn in GROUPS:
         try:

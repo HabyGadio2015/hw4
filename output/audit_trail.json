@@ -1,0 +1,37 @@
+[
+  {
+    "time": "2026-10-07T20:39:57+00:00",
+    "user": "guest",
+    "page": null,
+    "stop_reason": "guard_blocked",
+    "finish_reason": null,
+    "model_requests": null,
+    "tool_calls": [],
+    "cards_returned": 0,
+    "tokens_in": null,
+    "tokens_out": null,
+    "duration_ms": null,
+    "error": null
+  },
+  {
+    "time": "2026-10-07T20:40:01+00:00",
+    "user": "guest",
+    "page": "/products/baseball-left-chest-crewneck",
+    "stop_reason": "answered",
+    "finish_reason": "stop",
+    "model_requests": 2,
+    "tool_calls": [
+      {
+        "time": "2026-10-07T20:40:00+00:00",
+        "tool": "get_product_snapshot",
+        "args": "{\"product\": \"baseball-left-chest-crewneck\"}",
+        "result": "Baseball Left Chest Crewneck costs $58.00. In stock: S (15), M (5), L (25), XXL (25). Out of stock: XS, XL."
+      }
+    ],
+    "cards_returned": 1,
+    "tokens_in": 5418,
+    "tokens_out": 110,
+    "duration_ms": 4458,
+    "error": null
+  }
+]

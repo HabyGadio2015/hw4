@@ -230,3 +230,34 @@ class ProductSnapshot(BaseModel):
     sizes: list[SizeAvailability] = Field(default_factory=list)
     total_in_stock: int | None = None
     message: str
+
+
+# ---------- Audit trail (Problem 12) ----------
+
+StopReason = Literal["answered", "guard_blocked", "usage_limit", "error"]
+
+
+class AuditToolCall(BaseModel):
+    """One tool call inside an agent loop, with short, safe summaries (never the shopper's message)."""
+
+    time: str | None = None
+    tool: str
+    args: str
+    result: str
+
+
+class AuditEntry(BaseModel):
+    """One record in output/audit_trail.json: one chat turn, or one message the safety guard stopped."""
+
+    time: str  # UTC, ISO 8601
+    user: str  # "guest" or "user:<id>"; never a name, email, or message text
+    page: str | None = None  # plain site path only
+    stop_reason: StopReason
+    finish_reason: str | None = None  # the model's own finish reason for its last response
+    model_requests: int | None = None  # how many times the loop called the model
+    tool_calls: list[AuditToolCall] = Field(default_factory=list)
+    cards_returned: int = 0
+    tokens_in: int | None = None
+    tokens_out: int | None = None
+    duration_ms: int | None = None
+    error: str | None = None  # the error's class name only

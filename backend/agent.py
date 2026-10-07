@@ -15,10 +15,12 @@ import time
 from functools import lru_cache
 
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, ToolCallPart, UserPromptPart
+from pydantic_ai.exceptions import UsageLimitExceeded
+from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, UserPromptPart
 from pydantic_ai.usage import UsageLimits
 
-from models import AgentReply, ChatResponse, ChatTurn, PageContext, ShopDeps, UserPublic
+import audit
+from models import AgentReply, AuditEntry, ChatResponse, ChatTurn, PageContext, ShopDeps, UserPublic
 from tools import AGENT_TOOLS, BACKEND_DIR, fetch_product_detail, make_model, product_cards
 
 PROMPT_PATH = BACKEND_DIR / "prompts" / "prompt.md"
@@ -108,29 +110,55 @@ async def chat(
     page: PageContext | None = None,
 ) -> ChatResponse:
     started = time.perf_counter()
-    result = await build_agent().run(
-        message,
-        deps=make_deps(user, page),
-        message_history=to_message_history(history),
-        usage_limits=USAGE_LIMITS,
-    )
+    who = f"user:{user.id}" if user else "guest"
+    page_path = page.path if page and SAFE_PATH.fullmatch(page.path) else None
+
+    def elapsed_ms() -> int:
+        return int((time.perf_counter() - started) * 1000)
+
+    try:
+        result = await build_agent().run(
+            message,
+            deps=make_deps(user, page),
+            message_history=to_message_history(history),
+            usage_limits=USAGE_LIMITS,
+        )
+    except UsageLimitExceeded:
+        audit.record(AuditEntry(time=audit.now_iso(), user=who, page=page_path, stop_reason="usage_limit", duration_ms=elapsed_ms()))
+        raise
+    except Exception as exc:
+        audit.record(
+            AuditEntry(time=audit.now_iso(), user=who, page=page_path, stop_reason="error", error=type(exc).__name__, duration_ms=elapsed_ms())
+        )
+        raise
     reply: AgentReply = result.output
-    tools_used = [
-        part.tool_name
-        for msg in result.new_messages()
-        if isinstance(msg, ModelResponse)
-        for part in msg.parts
-        if isinstance(part, ToolCallPart) and part.tool_name in TOOL_NAMES
-    ]
+    new_messages = result.new_messages()
+    tool_calls = audit.tool_calls_from(new_messages, TOOL_NAMES)
+    tools_used = [call.tool for call in tool_calls]
     usage = result.usage  # a property in this PydanticAI version, not a method
     # One line per chat for cost monitoring. Never logs the message text.
     logger.info(
         "chat user=%s tools=%s requests=%s tokens_in=%s tokens_out=%s ms=%d",
-        user.id if user else "guest", tools_used, usage.requests, usage.input_tokens, usage.output_tokens,
-        (time.perf_counter() - started) * 1000,
+        user.id if user else "guest", tools_used, usage.requests, usage.input_tokens, usage.output_tokens, elapsed_ms(),
     )
     # Cards are rebuilt from the database, so a price or stock number on a card can never be invented.
     cards = product_cards(reply.product_ids)
+    last_response = next((m for m in reversed(new_messages) if isinstance(m, ModelResponse)), None)
+    audit.record(
+        AuditEntry(
+            time=audit.now_iso(),
+            user=who,
+            page=page_path,
+            stop_reason="answered",
+            finish_reason=getattr(last_response, "finish_reason", None),
+            model_requests=usage.requests,
+            tool_calls=tool_calls,
+            cards_returned=len(cards),
+            tokens_in=usage.input_tokens,
+            tokens_out=usage.output_tokens,
+            duration_ms=elapsed_ms(),
+        )
+    )
     return ChatResponse(
         reply=reply.reply,
         results_title=reply.results_title if cards else None,
