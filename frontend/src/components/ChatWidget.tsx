@@ -11,6 +11,14 @@ const GREETING: ChatMessage = {
   content: 'Hi! I’m the Campus Customs assistant. Ask me about hoodies, tees, sizes, or prices.',
 }
 
+const STARTERS = [
+  'What hoodies do you have?',
+  'Show me gray tees under $35',
+  'What would make a good gift for a parent?',
+  'Do you have anything for The Game?',
+]
+const PRODUCT_STARTERS = ['What sizes are in stock?', 'What colors does it come in?', 'Show me similar items']
+
 export default function ChatWidget() {
   const { user } = useAuth()
   const { show, clear } = useResults()
@@ -44,9 +52,8 @@ export default function ChatWidget() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, waiting, open])
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    const text = input.trim()
+  async function send(raw: string) {
+    const text = raw.trim()
     if (!text || waiting) return
     const previous = messages.slice(1) // skip the local greeting; the agent has its own prompt
     setMessages([...messages, { role: 'user', content: text }])
@@ -66,6 +73,11 @@ export default function ChatWidget() {
     } finally {
       setWaiting(false)
     }
+  }
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    void send(input)
   }
 
   return (
@@ -100,6 +112,15 @@ export default function ChatWidget() {
                 )}
               </div>
             ))}
+            {messages.length === 1 && !waiting && (
+              <div className="chat-chips" aria-label="Conversation starters">
+                {(productId ? PRODUCT_STARTERS : STARTERS).map((s) => (
+                  <button key={s} className="chat-chip" onClick={() => send(s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
             {waiting && (
               <div className="chat-bubble assistant typing" aria-label="Assistant is typing">
                 <span />

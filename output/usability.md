@@ -6,6 +6,15 @@ Each entry says what was added, why it helps a Campus Customs shopper or the bus
 
 *Reading of the assignment:* the text describes the second group as things that make the agent "better, more accurate, or safer, new agent tools, faster and cheaper", so the two agent / backend items below are that kind of change, and the two front-end items are changes to the pages shoppers see.
 
+## Summary
+
+| # | Improvement | Where | Where to see it in the running app |
+|---|---|---|---|
+| 1 | Product finder (search, category, in-stock, sort) | Shop page | Products page, toolbar above the grid |
+| 2 | Conversation starters in the chat | Shop page | Chat button, bottom right |
+| 3 | Sensitive-data guard | Agent / backend | Paste a card number into the chat |
+| 4 | One-call product lookup tool `get_product_snapshot` | Agent / backend | Ask a multi-fact question; see `tools_used` and the server log |
+
 ## Shop-page (front-end) improvements
 
 ### 1. Product finder on the Products page

@@ -92,5 +92,6 @@ Feedback from Haby: As expected, this model makes more mistakes. I needed to ask
 4. Wait
 5. Problem 9: Usability Improvements       Now that the core shop works, improve it. Choose and implement (1) 2 front-end usability improvements (2) 2 agent / backend usability improvements. Front-end improvements are things that make the agent output better, more accurate, or safer. These could be new agent tools or things that make the agent run faster and cheaper. Write output/usability.md BEFORE OR AS I BUILD. For each of the improvements, I want you to say: (1) What you added (2) Why it helps a Campus Customs shopper or the business. Then make sure all improvements actually show up in the running app. Graders will read the write-up and look for the features.
 6. give me the link
+7. These are great. Let's make sure these suggestions are written somewhere in output/usability.md so my grader knows. Then I want you to implement these
 
 Feedback from Haby: 
