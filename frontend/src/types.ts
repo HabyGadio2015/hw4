@@ -41,11 +41,13 @@ export interface ChatMessage {
   content: string
   products?: ProductCard[]
   resultsTitle?: string
+  skip?: boolean // a safety refusal (and the message that caused it): never re-sent as history
 }
 
 export interface ChatResponse {
   reply: string
   results_title: string | null
+  filtered: boolean
   products: ProductCard[]
 }
 

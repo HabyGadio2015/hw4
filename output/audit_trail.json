@@ -33,5 +33,75 @@
     "tokens_out": 110,
     "duration_ms": 4458,
     "error": null
+  },
+  {
+    "time": "2026-10-07T20:45:31+00:00",
+    "user": "guest",
+    "page": null,
+    "stop_reason": "error",
+    "finish_reason": null,
+    "model_requests": null,
+    "tool_calls": [],
+    "cards_returned": 0,
+    "tokens_in": null,
+    "tokens_out": null,
+    "duration_ms": 2065,
+    "error": "ModelHTTPError"
+  },
+  {
+    "time": "2026-10-07T20:46:57+00:00",
+    "user": "guest",
+    "page": null,
+    "stop_reason": "content_filtered",
+    "finish_reason": null,
+    "model_requests": null,
+    "tool_calls": [],
+    "cards_returned": 0,
+    "tokens_in": null,
+    "tokens_out": null,
+    "duration_ms": 1728,
+    "error": "ModelHTTPError"
+  },
+  {
+    "time": "2026-10-07T20:47:00+00:00",
+    "user": "guest",
+    "page": null,
+    "stop_reason": "answered",
+    "finish_reason": "stop",
+    "model_requests": 2,
+    "tool_calls": [
+      {
+        "time": "2026-10-07T20:46:58+00:00",
+        "tool": "get_product_snapshot",
+        "args": "{\"product\": \"Basic Hoodie Big Yale\"}",
+        "result": "Basic Hoodie Big Yale costs $68.00. In stock: XS (15), S (5), M (5), L (8), XL (2), XXL (25). Out of stock: none."
+      }
+    ],
+    "cards_returned": 1,
+    "tokens_in": 6023,
+    "tokens_out": 202,
+    "duration_ms": 3882,
+    "error": null
+  },
+  {
+    "time": "2026-10-07T20:47:07+00:00",
+    "user": "guest",
+    "page": null,
+    "stop_reason": "answered",
+    "finish_reason": "stop",
+    "model_requests": 2,
+    "tool_calls": [
+      {
+        "time": "2026-10-07T20:47:02+00:00",
+        "tool": "search_products",
+        "args": "{\"query\": \"shop phone number opening hours\", \"in_stock_only\": false}",
+        "result": "0 items"
+      }
+    ],
+    "cards_returned": 0,
+    "tokens_in": 5824,
+    "tokens_out": 174,
+    "duration_ms": 6477,
+    "error": null
   }
 ]

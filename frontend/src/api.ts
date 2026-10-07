@@ -50,7 +50,7 @@ export async function sendChat(message: string, history: ChatMessage[], page: Pa
     history: history.slice(-MAX_HISTORY_TURNS).map(({ role, content }) => ({ role, content })),
     page,
   })
-  return { role: 'assistant', content: res.reply, products: res.products, resultsTitle: res.results_title ?? undefined }
+  return { role: 'assistant', content: res.reply, products: res.products, resultsTitle: res.results_title ?? undefined, skip: res.filtered }
 }
 
 // The logged-in shopper's saved conversation (empty for guests).

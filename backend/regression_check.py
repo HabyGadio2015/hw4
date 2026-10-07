@@ -232,6 +232,77 @@ def check_audit_trail():
         return f"(real trail: {len(entries)} entries, valid)"
 
 
+def check_filters_and_history():
+    import tempfile
+
+    import agent
+    import audit
+    import guard
+    from models import ChatTurn
+    from pydantic_ai.exceptions import ModelHTTPError
+
+    history = [
+        ChatTurn(role="user", content="hi"),
+        ChatTurn(role="assistant", content="Hello!"),
+        ChatTurn(role="user", content="my card is 4242 4242 4242 4242"),
+        ChatTurn(role="assistant", content=guard.SENSITIVE_REPLY),
+        ChatTurn(role="user", content="what hoodies do you have?"),
+    ]
+    assert [t.content for t in guard.clean_guest_history(history)] == ["hi", "Hello!", "what hoodies do you have?"]
+
+    class Filtered:  # stands in for the agent when the provider's content filter refuses a request
+        async def run(self, *args, **kwargs):
+            raise ModelHTTPError(400, "gpt", body={"message": "The response was filtered due to the prompt triggering Azure OpenAI's content management policy."})
+
+    with tempfile.TemporaryDirectory() as tmp:
+        path = Path(tmp) / "audit.json"
+        old_path, old_build = audit.AUDIT_PATH, agent.build_agent
+        audit.AUDIT_PATH, agent.build_agent = path, (lambda: Filtered())
+        try:
+            try:
+                asyncio.run(agent.chat("anything", []))
+            except agent.ContentFiltered:
+                pass
+            else:
+                raise AssertionError("expected ContentFiltered")
+        finally:
+            audit.AUDIT_PATH, agent.build_agent = old_path, old_build
+        assert json.loads(path.read_text())[0]["stop_reason"] == "content_filtered"
+
+
+def check_finished_harness():
+    import agent
+    import audit
+    import auth
+    import memory
+    import models
+    import tools
+    from pydantic import BaseModel
+
+    text = (PROJECT / "output" / "harness.md").read_text().split("## 10. The finished harness")[1]
+    limits = agent.USAGE_LIMITS
+    claims = [
+        f"{limits.request_limit} model requests and {limits.tool_calls_limit} tool calls",
+        f"{tools.MAX_SEARCH_RESULTS} search results",
+        f"{models.MAX_PRODUCT_CARDS} product cards",
+        f"{models.MAX_MESSAGE_CHARS} characters per message",
+        f"{models.MAX_HISTORY_TURNS} turns",
+        f"last {memory.HISTORY_LIMIT} saved messages",
+        f"cut at {audit.MAX_TEXT} characters",
+        f"`{tools.MODEL_NAME}`",
+        f"{tools.REQUEST_TIMEOUT_SECONDS} seconds",
+        f"{auth.ITERATIONS:,} iterations",
+        f"{auth.MAX_FAILS_PER_EMAIL} failed logins per email",
+    ]
+    for claim in claims:
+        assert claim in text, f"harness section 10 no longer matches the code: {claim!r}"
+    rules = re.findall(r"^\d+\. \*\*", (BACKEND / "prompts" / "prompt.md").read_text().split("## Safety rules")[1], re.M)
+    assert f"{len(rules)} safety rules" in text, "the safety-rule count in the harness is out of date"
+    for name, obj in vars(models).items():
+        if isinstance(obj, type) and issubclass(obj, BaseModel) and obj.__module__ == "models":
+            assert f"**{name}**" in text, f"model {name} is not documented in harness section 10"
+
+
 GROUPS = [
     ("P2  database", check_database),
     ("P4  auth + harness claims", check_auth_and_harness_claims),
@@ -239,6 +310,8 @@ GROUPS = [
     ("P5/7/9 agent wiring + prompt", check_agent_wiring),
     ("P8/9 context, memory, guard", check_context_memory_guard),
     ("P12 audit trail (append-only)", check_audit_trail),
+    ("P12 filtered replies + guest history", check_filters_and_history),
+    ("P12 finished harness matches the code", check_finished_harness),
     ("git hygiene", check_git_hygiene),
     ("front end tsc + lint", check_frontend),
     ("live API smoke test", check_live_api),

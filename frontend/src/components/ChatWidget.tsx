@@ -69,13 +69,17 @@ export default function ChatWidget() {
     const text = raw.trim()
     if (!text || waiting) return
     setOpen(true)
-    const previous = messages.slice(1) // skip the local greeting; the agent has its own prompt
+    const previous = messages.slice(1).filter((m) => !m.skip) // skip the greeting and any refused exchange
     setMessages([...messages, { role: 'user', content: text }])
     setInput('')
     setWaiting(true)
     try {
       const reply = await sendChat(text, previous, page)
-      setMessages((m) => [...m, reply])
+      setMessages((m) => {
+        const next = [...m, reply]
+        if (reply.skip) next[next.length - 2] = { ...next[next.length - 2], skip: true } // the message that was refused
+        return next
+      })
       if (reply.products && reply.products.length > 0) {
         // The API contract: matching products come back as structured cards, and the page renders them.
         show(reply.resultsTitle ?? text, reply.products)

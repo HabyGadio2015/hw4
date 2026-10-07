@@ -2,6 +2,8 @@
 
 import re
 
+from models import ChatTurn
+
 CARD_RE = re.compile(r"(?<!\d)(?:\d[ -]?){13,19}(?!\d)")
 SSN_RE = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")
 SECRET_RE = re.compile(r"\b(?:password|passcode|pin|cvv|cvc)\b\s*(?:is|=|:)\s*\S+", re.IGNORECASE)
@@ -31,3 +33,19 @@ def contains_sensitive(text: str) -> bool:
         if 13 <= len(digits) <= 19 and _luhn_ok(digits):
             return True
     return False
+
+
+def clean_guest_history(history: list[ChatTurn]) -> list[ChatTurn]:
+    """Drop any earlier turn that holds sensitive data (and the reply right after it), so it is never re-sent to the model."""
+    cleaned: list[ChatTurn] = []
+    skip_reply = False
+    for turn in history:
+        if turn.role == "user" and contains_sensitive(turn.content):
+            skip_reply = True
+            continue
+        if turn.role == "assistant" and skip_reply:
+            skip_reply = False
+            continue
+        skip_reply = False
+        cleaned.append(turn)
+    return cleaned

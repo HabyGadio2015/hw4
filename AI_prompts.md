@@ -135,5 +135,6 @@ Feedback from Haby:
 ## Problem 12: Audit Trail, Safety, Finish Harness
 
 1. Do not rewrite. Problem 12: Audit Trail, Safety, Finish Harness         Keep an append-only output/audit_trail.json of agent loop activity (time, tool name, short args/result, stop reason). Do not wipe it between runs. ABSOLUTELY DO NOT! Also, think of some safety rules to give the agent and put them in prompts/prompt.md   Finish output/harness.md so it is clear how the system works. (1) Model fields in models.py and why you chose them (2) tool and abilities (3) safety rules (4) specs (loop limits, result caps, models, how to run front + back)
+2. Yes complete the whole problem
 
 Feedback from Haby: 

@@ -108,6 +108,7 @@ class ChatResponse(BaseModel):
     results_title: str | None = None  # heading for the cards on the page, e.g. "Hoodies"
     products: list[ProductCard]
     tools_used: list[str] = Field(default_factory=list)  # catalogue tools the agent called this turn
+    filtered: bool = False  # true for a safety refusal: the browser must not keep that exchange in the history it re-sends
 
 
 class ChatHistoryItem(BaseModel):
@@ -234,7 +235,7 @@ class ProductSnapshot(BaseModel):
 
 # ---------- Audit trail (Problem 12) ----------
 
-StopReason = Literal["answered", "guard_blocked", "usage_limit", "error"]
+StopReason = Literal["answered", "guard_blocked", "content_filtered", "usage_limit", "error"]
 
 
 class AuditToolCall(BaseModel):

@@ -15,7 +15,7 @@ import time
 from functools import lru_cache
 
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.exceptions import UsageLimitExceeded
+from pydantic_ai.exceptions import ModelHTTPError, UsageLimitExceeded
 from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, UserPromptPart
 from pydantic_ai.usage import UsageLimits
 
@@ -99,6 +99,20 @@ def to_message_history(history: list[ChatTurn]) -> list[ModelMessage]:
     return messages
 
 
+FILTERED_REPLY = (
+    "I can't help with that one, but I'm happy to help you find Yale gear, check sizes, or look up prices. "
+    "What are you shopping for?"
+)
+
+
+class ContentFiltered(Exception):
+    """The model provider's content filter refused the request. The route shows FILTERED_REPLY and does not save the exchange."""
+
+
+def is_content_filter_error(exc: ModelHTTPError) -> bool:
+    return exc.status_code == 400 and "content management policy" in str(exc.body).lower()
+
+
 logger = logging.getLogger("campus_customs.chat")
 TOOL_NAMES = {tool.__name__ for tool in AGENT_TOOLS}
 
@@ -125,6 +139,21 @@ async def chat(
         )
     except UsageLimitExceeded:
         audit.record(AuditEntry(time=audit.now_iso(), user=who, page=page_path, stop_reason="usage_limit", duration_ms=elapsed_ms()))
+        raise
+    except ModelHTTPError as exc:
+        filtered = is_content_filter_error(exc)
+        audit.record(
+            AuditEntry(
+                time=audit.now_iso(),
+                user=who,
+                page=page_path,
+                stop_reason="content_filtered" if filtered else "error",
+                error=type(exc).__name__,
+                duration_ms=elapsed_ms(),
+            )
+        )
+        if filtered:
+            raise ContentFiltered() from exc
         raise
     except Exception as exc:
         audit.record(

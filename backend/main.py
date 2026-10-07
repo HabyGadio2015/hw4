@@ -77,11 +77,13 @@ async def chat(body: ChatRequest, request: Request) -> ChatResponse:
     # Card numbers, SSNs, and passwords never reach the model or the saved chat history.
     if guard.contains_sensitive(body.message):
         audit.record(AuditEntry(time=audit.now_iso(), user=f"user:{user.id}" if user else "guest", stop_reason="guard_blocked"))
-        return ChatResponse(reply=guard.SENSITIVE_REPLY, products=[])
+        return ChatResponse(reply=guard.SENSITIVE_REPLY, products=[], filtered=True)
     # A logged-in shopper's history comes from the database, not from the browser, so it can't be spoofed.
-    history = memory.recent_turns(user.id) if user else body.history
+    history = memory.recent_turns(user.id) if user else guard.clean_guest_history(body.history)
     try:
         response = await agent.chat(body.message, history, user=user, page=body.page)
+    except agent.ContentFiltered:
+        return ChatResponse(reply=agent.FILTERED_REPLY, products=[], filtered=True)  # not saved, so it can't poison the history
     except Exception:
         # Log details server-side only; never send stack traces or keys to the browser.
         logger.exception("Chat agent failed")
