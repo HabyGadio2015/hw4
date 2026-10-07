@@ -16,3 +16,6 @@ images/
 *.png
 *.webp
 *.gif
+
+# Local test logins: kept on this computer only, never in the repository
+backend/TEST_ACCOUNTS.md
