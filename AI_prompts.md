@@ -167,5 +167,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 3. esp all the #
 4. show me option 1
 5. 1b, show me everything down here
+6. i meanthe hw4/ list i just wrote out
 
 Feedback from Haby: 
