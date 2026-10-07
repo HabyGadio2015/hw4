@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs: Live Site App Check</title>
+<style>
+  body { margin: 0; background: #f6f1e6; color: #1f2933; font: 16px/1.55 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+  header { background: #00356b; color: #fff; padding: 2rem 1.5rem; }
+  header h1 { margin: 0 0 .4rem; font-family: Georgia, serif; font-size: 2rem; }
+  header p { margin: .15rem 0; color: #dbe6f3; }
+  main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+  h2 { margin: 2.4rem 0 .6rem; color: #00356b; font-family: Georgia, serif; border-bottom: 3px solid #c9a24b; padding-bottom: .3rem; }
+  table { border-collapse: collapse; width: 100%; background: #fff; margin: .6rem 0; }
+  th, td { border: 1px solid #ddd5c3; padding: .45rem .7rem; text-align: left; vertical-align: top; }
+  th { background: #eee6d3; }
+  .pass { color: #14702f; font-weight: 700; }
+  figure { margin: 1rem 0; background: #fff; border: 1px solid #ddd5c3; border-radius: 10px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: .9rem 1.1rem; border-top: 1px solid #ddd5c3; }
+  figcaption strong { color: #00356b; }
+  .evidence { background: #fff; border: 1px dashed #b89a4a; border-radius: 8px; padding: .8rem 1.1rem; margin: .8rem 0; font-size: .95rem; }
+  .evidence h3 { margin: 0 0 .4rem; font-size: 1rem; color: #00356b; }
+  .small { color: #5b6672; font-size: .9rem; }
+  code { background: #eee6d3; padding: 0 .3rem; border-radius: 3px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Campus Customs: Live Site App Check</h1>
+  <p>Problem 11 · tested October 07, 2026, 04:27 PM</p>
+  <p>Site: <code>http://localhost:5174</code> (React front end) · API: <code>http://127.0.0.1:8000</code> (FastAPI + PydanticAI agent) · Model: gpt-5.6-luna through Portkey</p>
+</header>
+<main>
+
+<h2>Summary</h2>
+<table>
+  <tr><th>#</th><th>Check</th><th>Result</th><th>Screenshot</th></tr>
+  <tr><td>1</td><td>Chat checks the inventory level and price of an item (honest stock and price from the database)</td><td class="pass">PASS</td><td><a href="app_check_images/inventory.png">app_check_images/inventory.png</a></td></tr>
+  <tr><td>2</td><td>Dynamic search-result cards appear after a category question (hoodies)</td><td class="pass">PASS</td><td><a href="app_check_images/search_cards.png">app_check_images/search_cards.png</a></td></tr>
+  <tr><td>3</td><td>A Problem 9 usability feature: the product finder (search, category, count)</td><td class="pass">PASS</td><td><a href="app_check_images/usability_finder.png">app_check_images/usability_finder.png</a></td></tr>
+</table>
+<p class="small">Checks 1 and 2 were real chat calls to the live agent (no stubbed replies). Screenshots were taken in a 1280×820 browser window and are saved at 800 px wide. Automated regression check run just before this page was written: 8/8 groups passed.</p>
+
+<h2>Check 1: Chat checks inventory and price from the database</h2>
+<figure>
+  <img src="app_check_images/inventory.png" alt="Chat window answering a price and stock question about the Baseball Left Chest Crewneck, with the product card on the page">
+  <figcaption><strong>What this proves:</strong> the chat answered a price-and-stock question from the database, not from memory: $58.00 and 5 in medium match the database exactly, and XS is honestly reported as Out of Stock (0 in the database). The card's size chips list only the sizes that have stock (S, M, L, XXL).</figcaption>
+</figure>
+<div class="evidence">
+  <h3>How it was tested, and the database ground truth</h3>
+  <p>Question typed into the chat: <em>"How much is the Baseball Left Chest Crewneck, and how many are in stock in medium and in XS?"</em><br>
+  Reply: <em>"The Baseball Left Chest Crewneck is $58.00. Medium: 5 in stock. XS: Out of Stock."</em></p>
+  <table>
+    <tr><th>Fact</th><th>Chat said</th><th>Database (<code>campus_customs.db</code>)</th></tr>
+    <tr><td>Price</td><td>$58.00</td><td>$58.00</td></tr>
+    <tr><td>Medium in stock</td><td>5</td><td>5</td></tr>
+    <tr><td>XS in stock</td><td>Out of Stock</td><td>0</td></tr>
+    <tr><td>Sizes with stock (card chips)</td><td>S, M, L, XXL</td><td>S, M, L, XXL (XS = 0, XL = 0)</td></tr>
+  </table>
+</div>
+
+<h2>Check 2: Dynamic search-result cards after a category question</h2>
+<figure>
+  <img src="app_check_images/search_cards.png" alt="Chat window after asking what hoodies the shop has, with hoodie product cards hanging on a rail on the page">
+  <figcaption><strong>What this proves:</strong> asking "What hoodies do you have?" changed the page: the agent returned 12 matching hoodies as structured results and the site drew them as product cards on a hanger rail under a "Hung up 12 items for you" ribbon, each with its real price and sizes in stock. The chat reply stays short because the cards carry the details.</figcaption>
+</figure>
+<div class="evidence">
+  <h3>How it was tested, and the database ground truth</h3>
+  <p>Question typed into the chat: <em>"What hoodies do you have?"</em> The page showed the heading "Yale Hoodies" and 12 cards. Every card's name exists in the catalogue and its price equals the database price:</p>
+  <table>
+    <tr><th>Card shown</th><th>Price on card</th><th>Database price</th></tr>
+    <tr><td>Basic Hoodie Big Yale</td><td>$68.00</td><td>$68.00</td></tr><tr><td>Brooks Brothers Double Knit Full Zip Hoodie Yale</td><td>$88.00</td><td>$88.00</td></tr><tr><td>Champion Full Zip Hood</td><td>$88.00</td><td>$88.00</td></tr><tr><td>Champion Reverse Weave Hoodie 1</td><td>$68.00</td><td>$68.00</td></tr><tr><td>Crew Left Chest Hoodie</td><td>$68.00</td><td>$68.00</td></tr><tr><td>District Vit Hoodie Vintage Bulldog</td><td>$68.00</td><td>$68.00</td></tr><tr><td>District Vit Hoodie Vintage Sailor Bulldog</td><td>$68.00</td><td>$68.00</td></tr><tr><td>Fencing Left Chest Hoodie</td><td>$68.00</td><td>$68.00</td></tr><tr><td>Ice Hockey Left Chest Hoodie</td><td>$68.00</td><td>$68.00</td></tr><tr><td>Sailing Left Chest Hoodie</td><td>$68.00</td><td>$68.00</td></tr><tr><td>Squash Left Chest Hoodie</td><td>$68.00</td><td>$68.00</td></tr><tr><td>The Forest School Hoodie</td><td>$68.00</td><td>$68.00</td></tr>
+  </table>
+</div>
+
+<h2>Check 3: Usability feature from Problem 9, the product finder</h2>
+<figure>
+  <img src="app_check_images/usability_finder.png" alt="Products page with the word navy typed in the search box and the Hoodies category selected, showing 25 of 102 products">
+  <figcaption><strong>What this proves:</strong> the Products page finder narrows 102 products to 25 when "navy" is searched inside the Hoodies category, and the count matches an independent database query. The stock meters and size chips on each card come from live inventory.</figcaption>
+</figure>
+<div class="evidence">
+  <h3>How it was tested, and the database ground truth</h3>
+  <p>On the Products page, the <em>Hoodies</em> category pill was selected and <em>"navy"</em> was typed in the search box. The page read "Showing 25 of 102 products". The database says there are 27 hoodies, and 25 of them mention "navy" in their name, type, or description. The search matches words anywhere in those fields, so the gray Champion Full Zip Hood appears: its description mentions white-and-navy lettering and its colors include navy blue.</p>
+</div>
+
+<p class="small">Source of the screenshots: the live running site, saved into <code>output/app_check_images/</code>. The images are linked with relative paths, so this page works when double-clicked as long as the folder stays next to it.</p>
+</main>
+</body>
+</html>

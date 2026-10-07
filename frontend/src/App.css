@@ -2631,3 +2631,11 @@ html[data-calm='true'] .hang-card {
     transform: perspective(700px) rotateY(0) scale(1);
   }
 }
+
+/* the chat button is white now, so its "×" (shown while the chat is open) must be dark to be visible */
+.chat-toggle {
+  color: var(--yale-blue);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
