@@ -82,4 +82,4 @@ Feedback from Haby: In terms of spending, my assignment is now costing a fractio
 3. Are you done?
 4. Double check there are no mistakes
 
-Feedback from Haby: 
+Feedback from Haby: As expected, this model makes more mistakes. I needed to ask it to double check its work and ensure that its work is above board.
