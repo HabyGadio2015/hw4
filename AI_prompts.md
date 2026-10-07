@@ -45,3 +45,4 @@ Feedback from Haby:
 ## Problem 5: PydanticAI Agent Backend
 
 1. Problem 5: PydanticAI Agent Backend. Build the shop chatbot as a PydanticAI agent behind FastAPI, plugged into your frontend chat widget. Put the API app in backend/main.py - that is the file you run with Uvicorn. Keep the agent as these four files next to it (same idea as HW 3 - verify that you have looked through hw3 and understand what we are doing).  I want 4 things (1) backend/prompts/prompt.md - system prompt (grow this same file later). (2) backend/agent.py - agent entry/wiring. (3) backend/tools.py - tools the agent can call (4) backend/models.py - Pydantic / PydanticAI structured types. In main.py expose a chat route so a message from the website returns a reply from the agent (and whatever else you need for products/auth) You will need my AI model API key for the agent
+2. WAIT HOLD ON ONE SECOND
