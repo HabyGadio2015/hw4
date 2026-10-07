@@ -5,6 +5,7 @@ import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import ChatWidget from './components/ChatWidget'
 import Confetti from './components/Confetti'
+import PageWipe from './components/PageWipe'
 import Pennants from './components/Pennants'
 import ThemeToggles from './components/ThemeToggles'
 import ResultsPanel from './components/ResultsPanel'
@@ -31,6 +32,7 @@ function App() {
 
   return (
     <div className="app">
+      <PageWipe />
       <div className="announcement">
         <span>Officially Licensed Yale Merchandise · 57 Broadway, New Haven</span>
         <ThemeToggles />

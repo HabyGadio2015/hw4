@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
+import { SkeletonCard } from '../components/Skeletons'
 import { fetchProducts } from '../api'
 import { categoryOf } from '../categories'
 import type { ProductSummary } from '../types'
@@ -58,7 +59,13 @@ export default function Products() {
       <p className="lead">Browse hoodies, crewnecks, tees, and jackets from the Campus Customs catalogue.</p>
 
       {error && <div className="placeholder">{error}</div>}
-      {!error && !products && <div className="placeholder">Loading products…</div>}
+      {!error && !products && (
+        <div className="product-grid" role="status" aria-label="Loading products">
+          {Array.from({ length: 8 }, (_, i) => (
+            <SkeletonCard key={i} hoodie={i % 2 === 0} />
+          ))}
+        </div>
+      )}
       {products && (
         <>
           <div className="finder">

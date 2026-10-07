@@ -28,6 +28,8 @@ class ProductSummary(BaseModel):
     price: float
     image_url: str
     in_stock: bool
+    total_in_stock: int = 0
+    sizes: list[SizeStock] = Field(default_factory=list)
 
 
 class ProductDetail(ProductSummary):

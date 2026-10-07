@@ -114,5 +114,9 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 1. Problem 10: Style the Website    Add creative design so the site feels like a real Campus Customs storefront - fonts, color, hierachy, motion, product presentation, chat feel. I will get more points for imaginative and innovative design. I need this to look unlike any other similar project out there. I want it to be highly animative and fun and interactive.                          Tell me what should be changed and why it would help customers on the interface. Do not change anything just make suggestions. In output/design.md  I want you to put "I changed ________ because _________" fill in those blanks.
 2. I'm ok with those changes. Go ahead.
 3. Please stop proposing a fresh session, I do not want to do that!
+4. how many batches are there
+5. just tell me the number
+6. go ahead
+7. In each of the 14 sentences I changed X because Y, after the sentence you wrote, I want a single sentence that says "It should help customers stick around and buy because ____" and fill in the blank
 
 Feedback from Haby: 

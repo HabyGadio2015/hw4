@@ -130,16 +130,8 @@ def _stock_by_product(conn: sqlite3.Connection, product_ids: list[str]) -> dict[
 
 def list_product_summaries() -> list[ProductSummary]:
     with connect() as conn:
-        rows = conn.execute(
-            """
-            SELECT c.product_id, c.name, c.garment_type, c.description, c.price, c.image_file_path,
-                   COALESCE(SUM(i.quantity), 0) AS total_qty
-            FROM catalogue c
-            LEFT JOIN inventory i ON i.product_id = c.product_id
-            GROUP BY c.product_id
-            ORDER BY c.name
-            """
-        ).fetchall()
+        rows = conn.execute("SELECT * FROM catalogue ORDER BY name").fetchall()
+        stock = _stock_by_product(conn, [r["product_id"] for r in rows])
     return [
         ProductSummary(
             product_id=r["product_id"],
@@ -148,7 +140,9 @@ def list_product_summaries() -> list[ProductSummary]:
             description=r["description"],
             price=r["price"],
             image_url=image_url(r["image_file_path"]),
-            in_stock=r["total_qty"] > 0,
+            in_stock=any(s.quantity > 0 for s in stock[r["product_id"]]),
+            total_in_stock=sum(s.quantity for s in stock[r["product_id"]]),
+            sizes=stock[r["product_id"]],
         )
         for r in rows
     ]
@@ -168,6 +162,8 @@ def fetch_product_detail(product_id: str) -> ProductDetail | None:
         price=row["price"],
         image_url=image_url(row["image_file_path"]),
         in_stock=any(s.quantity > 0 for s in inventory),
+        total_in_stock=sum(s.quantity for s in inventory),
+        sizes=inventory,
         colors=json.loads(row["colors"]),
         search_tags=json.loads(row["search_tags"]),
         inventory=inventory,
