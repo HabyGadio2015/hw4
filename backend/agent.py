@@ -15,8 +15,8 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart, UserPromptPart
 from pydantic_ai.usage import UsageLimits
 
-from models import AgentReply, ChatResponse, ChatTurn, ShopDeps
-from tools import AGENT_TOOLS, BACKEND_DIR, make_model, product_cards
+from models import AgentReply, ChatResponse, ChatTurn, PageContext, ShopDeps, UserPublic
+from tools import AGENT_TOOLS, BACKEND_DIR, fetch_product_detail, make_model, product_cards
 
 PROMPT_PATH = BACKEND_DIR / "prompts" / "prompt.md"
 SAFETY_HEADING = "## Safety rules"
@@ -47,10 +47,38 @@ def build_agent() -> Agent[ShopDeps, AgentReply]:
 
     @agent.instructions
     def shopper_context(ctx: RunContext[ShopDeps]) -> str:
-        name = ctx.deps.shopper_first_name
-        return f"The shopper is logged in; their first name is {name}." if name else "The shopper is not logged in."
+        return describe_context(ctx.deps)
 
     return agent
+
+
+def make_deps(user: UserPublic | None, page: PageContext | None) -> ShopDeps:
+    """Per-request deps. The page's product comes from our database, not from text the browser sent."""
+    product = fetch_product_detail(page.product_id) if page and page.product_id else None
+    return ShopDeps(user=user, page=page, page_product=product)
+
+
+def describe_context(deps: ShopDeps) -> str:
+    """Plain-text facts for the agent: who is chatting and which page they are on."""
+    lines = []
+    if deps.user:
+        u = deps.user
+        lines.append(
+            f"The shopper is logged in. Name: {u.name}. First name: {u.first_name or u.name}. Email: {u.email}. "
+            "Their chats are saved for them."
+        )
+    else:
+        lines.append("The shopper is not logged in, so you don't know who they are, and their chat is not saved.")
+    p = deps.page_product
+    if p:
+        lines.append(
+            f'The shopper is on the product page for "{p.name}" (product_id {p.product_id}), a {p.garment_type} '
+            f"listed in these colors: {', '.join(p.colors)}. If they say \"this\", \"it\", \"this one\", or "
+            "\"this item\", they mean this product: use this product_id with your tools."
+        )
+    elif deps.page:
+        lines.append(f"The shopper is on the website page {deps.page.path}.")
+    return "\n".join(lines)
 
 
 def to_message_history(history: list[ChatTurn]) -> list[ModelMessage]:
@@ -64,10 +92,15 @@ def to_message_history(history: list[ChatTurn]) -> list[ModelMessage]:
     return messages
 
 
-async def chat(message: str, history: list[ChatTurn], shopper_first_name: str | None = None) -> ChatResponse:
+async def chat(
+    message: str,
+    history: list[ChatTurn],
+    user: UserPublic | None = None,
+    page: PageContext | None = None,
+) -> ChatResponse:
     result = await build_agent().run(
         message,
-        deps=ShopDeps(shopper_first_name=shopper_first_name),
+        deps=make_deps(user, page),
         message_history=to_message_history(history),
         usage_limits=USAGE_LIMITS,
     )

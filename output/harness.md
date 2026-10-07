@@ -238,3 +238,36 @@ New "Tools: product info and stock" section: a table matching each kind of quest
 **Bug found and fixed while testing:** my new scroll-to-top effect in `App.tsx` returned a value, which blanked the whole page. It now returns nothing. tsc and lint did not catch it; only running it in the browser did.
 
 **Verified (2026-10-07), live:** asked "show me your t-shirts" → "Yale T-shirts", 12 cards. Clicked card 2 (Benjamin Franklin T Shirt) and card 12 (School Of Nursing Crest T Shirt). Each opened `/products/{id}` with the same name, a $32.00 price matching the card, a loaded large image, a description, and 6 size cells. The panel was hidden on the detail page, and "Back to chat results" brought back all 12 cards.
+
+## 7. Customer Memory (Problem 8)
+
+**Note on section 4:** that section says the agent sees only a first name, with no email or id. *(Problem 8: this changed on purpose. The agent now also sees the shopper's full name and email, and nothing else. See "What the agent sees" below. The password hash is still never included.)*
+
+### How user chat history is stored
+- **Table:** the existing `chat_messages` table, with one row per message: `id`, `user_id` (→ `users.id`), `role` (`user` / `assistant`), `content`, `products_json`, `created_at`. No schema change.
+- **Who is saved:** **logged-in shoppers only.** In `POST /api/chat`, after the agent answers successfully, `memory.save_exchange()` writes two rows (the shopper's message, then the assistant's reply with its product cards in `products_json`). Failed chats save nothing. Guests are never written to the database.
+- **Reload:** `GET /api/chat/history` (requires login, 401 for guests) returns the last 50 messages. `products_json` is used only for its `product_id`s. The cards are rebuilt from the catalogue, so a returning shopper sees current prices and stock, and sold-out or removed items are handled. (The older seed rows in a different format load fine for the same reason.)
+- **The agent's memory comes from the database, not the browser.** For a logged-in shopper the backend loads the last 20 saved messages itself and ignores any history the browser sends. Nobody can forge a shopper's past, and the conversation continues across visits.
+- **Scoped per user:** every query filters on `user_id` from the signed session cookie, so one shopper can never read another's chat.
+- **Guests:** they can chat as before. Their history exists only in the open browser tab (the widget sends up to the last 20 turns with each message) and disappears on reload.
+- **No leaking between accounts:** `App.tsx` re-creates the chat widget with `key = user id`. Logging out or switching accounts clears the chat and the results panel, and logging in loads that shopper's saved chat. Saved messages with product cards show a "↑ Show these N items on the page" button that puts those cards back on the page.
+
+### What the agent sees (customer fields)
+`ShopDeps` (the agent's per-request deps, in `models.py`) holds three things:
+- `user: UserPublic | None`, the logged-in shopper: `id`, `first_name`, `last_name`, `name`, `email`. **Never** the password hash or any other `users` column. `None` for guests.
+- `page: PageContext | None`, where the shopper is (below).
+- `page_product: ProductDetail | None`, that page's product, loaded from the database.
+
+`describe_context()` in `agent.py` turns `ShopDeps` into plain sentences, added to the system prompt on every turn through `@agent.instructions`. A logged-in shopper's instructions read: "Name: Test User. First name: Test. Email: …. Their chats are saved for them." A guest's read: "not logged in, so you don't know who they are, and their chat is not saved." `prompts/prompt.md` has a new section "Who you're talking to, and what they're looking at": greet by first name once, give the email only if the shopper asks what's on their account, never reveal anything about other shoppers, and never claim to remember what isn't in the conversation. No new tool was needed. The context in deps covers it.
+
+### How page context is passed
+1. **Browser:** `ChatWidget` reads the route. On `/products/{id}` it sends `page: {path, product_id}` with every message (`POST /api/chat` → `ChatRequest.page: PageContext`). On other pages it sends just the path. The input placeholder changes to "Ask about this item…" on a product page.
+2. **Backend:** `agent.make_deps()` ignores any product text from the browser and looks up `page.product_id` in the catalogue (`fetch_product_detail`). An unknown id is treated as "no product".
+3. **Agent:** `describe_context()` states the product name, `product_id`, garment type and colors, plus: "If they say this / it / this one / this item, they mean this product; use this product_id with your tools." So "do you have this in blue?" refers to the page's item. The agent still gets prices and stock from the tools, never from page context.
+
+### Verified (2026-10-07)
+- **Injected context, offline:** logged-in + product page, guest + home, and unknown product id each produced the right instructions.
+- **Live, as Test User on the Basic Hoodie page:** "do you have this in blue?" → "…comes in navy blue and white… not a lighter or royal blue" (matches its colors in the DB). "What name and email do you have for me?" → "Test User" and "test@campuscustoms.yale.edu".
+- **Storage:** history before 6 messages, after 10 (+4 rows). A guest asking the same question on that page got a correct answer and added 0 rows. `GET /api/chat/history` returned 401 for the guest.
+- **Browser:** a logged-in shopper's widget showed "Chatting as Test" with 11 messages reloaded (greeting + 10 saved) and "Show these N items" buttons. The request carried `page = {path: /products/basic-hoodie-big-yale, product_id: basic-hoodie-big-yale}`. After logging out the widget had only the greeting, the header was back to "Merch assistant", and the results panel was gone. No console errors.
+- **Test data:** the Test User account (in the git-ignored DB) now has 4 more saved messages from these tests.

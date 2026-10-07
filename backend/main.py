@@ -15,8 +15,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 import agent
+import memory
 from auth import current_user, router as auth_router
-from models import ChatRequest, ChatResponse, ProductDetail, ProductSummary
+from models import ChatHistoryItem, ChatRequest, ChatResponse, ProductDetail, ProductSummary
 from tools import PRODUCTS_DIR, fetch_product_detail, list_product_summaries
 
 logger = logging.getLogger("campus_customs")
@@ -55,11 +56,21 @@ def get_product(product_id: str) -> ProductDetail:
     return product
 
 
+@app.get("/api/chat/history", response_model=list[ChatHistoryItem])
+def chat_history(request: Request) -> list[ChatHistoryItem]:
+    user = current_user(request)
+    if user is None:
+        raise HTTPException(status_code=401, detail="Log in to see your saved chat.")
+    return memory.load_history(user.id)
+
+
 @app.post("/api/chat", response_model=ChatResponse)
 async def chat(body: ChatRequest, request: Request) -> ChatResponse:
-    user = current_user(request)  # optional: logged-in shoppers get greeted by first name
+    user = current_user(request)  # optional: logged-in shoppers get memory and personalization
+    # A logged-in shopper's history comes from the database, not from the browser, so it can't be spoofed.
+    history = memory.recent_turns(user.id) if user else body.history
     try:
-        return await agent.chat(body.message, body.history, shopper_first_name=user.first_name if user else None)
+        response = await agent.chat(body.message, history, user=user, page=body.page)
     except Exception:
         # Log details server-side only; never send stack traces or keys to the browser.
         logger.exception("Chat agent failed")
@@ -67,3 +78,6 @@ async def chat(body: ChatRequest, request: Request) -> ChatResponse:
             status_code=502,
             detail="Sorry, our assistant is having trouble right now. Please try again in a moment.",
         )
+    if user:
+        memory.save_exchange(user.id, body.message, response.reply, response.products)
+    return response

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
+import { useAuth } from './auth'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import ChatWidget from './components/ChatWidget'
@@ -14,6 +15,7 @@ import './App.css'
 
 function App() {
   const { pathname } = useLocation()
+  const { user } = useAuth()
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [pathname])
@@ -35,7 +37,8 @@ function App() {
         </Routes>
       </main>
       <Footer />
-      <ChatWidget />
+      {/* key: a new shopper (or logging out) starts a fresh widget, so chats never leak between accounts */}
+      <ChatWidget key={user?.id ?? 'guest'} />
     </div>
   )
 }

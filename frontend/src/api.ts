@@ -1,4 +1,4 @@
-import type { ChatMessage, ChatResponse, ProductDetail, ProductSummary, SignupInput, User } from './types'
+import type { ChatHistoryItem, ChatMessage, ChatResponse, PageContext, ProductDetail, ProductSummary, SignupInput, User } from './types'
 
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url)
@@ -43,11 +43,20 @@ export const formatPrice = (price: number) => `$${price.toFixed(2)}`
 
 const MAX_HISTORY_TURNS = 20
 
-export async function sendChat(message: string, history: ChatMessage[]): Promise<ChatMessage> {
+export async function sendChat(message: string, history: ChatMessage[], page: PageContext): Promise<ChatMessage> {
   const res = await postJson<ChatResponse>('/api/chat', {
     message,
-    // Text-only history; the backend rebuilds product cards itself.
+    // Text-only history (used for guests; for logged-in shoppers the backend uses the saved chat instead).
     history: history.slice(-MAX_HISTORY_TURNS).map(({ role, content }) => ({ role, content })),
+    page,
   })
   return { role: 'assistant', content: res.reply, products: res.products, resultsTitle: res.results_title ?? undefined }
+}
+
+// The logged-in shopper's saved conversation (empty for guests).
+export async function fetchChatHistory(): Promise<ChatMessage[]> {
+  const res = await fetch('/api/chat/history')
+  if (!res.ok) return []
+  const items = (await res.json()) as ChatHistoryItem[]
+  return items.map(({ role, content, products }) => ({ role, content, products }))
 }

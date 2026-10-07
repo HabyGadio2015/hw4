@@ -62,3 +62,16 @@ export interface SignupInput {
   password: string
   confirm_password: string
 }
+
+// Where the shopper is on the site, sent with each chat message.
+export interface PageContext {
+  path: string
+  product_id?: string
+}
+
+// One saved message from GET /api/chat/history.
+export interface ChatHistoryItem {
+  role: 'user' | 'assistant'
+  content: string
+  products: ProductCard[]
+}

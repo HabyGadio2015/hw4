@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { sendChat } from '../api'
+import { useLocation } from 'react-router-dom'
+import { fetchChatHistory, sendChat } from '../api'
+import { useAuth } from '../auth'
 import { useResults } from '../results'
-import type { ChatMessage } from '../types'
+import type { ChatMessage, PageContext } from '../types'
 
 const GREETING: ChatMessage = {
   role: 'assistant',
@@ -10,12 +12,32 @@ const GREETING: ChatMessage = {
 }
 
 export default function ChatWidget() {
-  const { show } = useResults()
+  const { user } = useAuth()
+  const { show, clear } = useResults()
+  const { pathname } = useLocation()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING])
   const [input, setInput] = useState('')
   const [waiting, setWaiting] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  // Page context: on a single-item page the agent is told which product "this" means.
+  const productId = /^\/products\/([^/]+)$/.exec(pathname)?.[1]
+  const page: PageContext = { path: pathname, product_id: productId ? decodeURIComponent(productId) : undefined }
+
+  // This widget is re-created for each shopper (see App.tsx), so on mount: drop the previous shopper's cards,
+  // and if someone is logged in, load their saved chat.
+  useEffect(() => {
+    clear()
+    if (!user) return
+    let cancelled = false
+    fetchChatHistory().then((saved) => {
+      if (!cancelled && saved.length > 0) setMessages([GREETING, ...saved])
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [user, clear])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -30,7 +52,7 @@ export default function ChatWidget() {
     setInput('')
     setWaiting(true)
     try {
-      const reply = await sendChat(text, previous)
+      const reply = await sendChat(text, previous, page)
       setMessages((m) => [...m, reply])
       if (reply.products && reply.products.length > 0) {
         // The API contract: matching products come back as structured cards, and the page renders them.
@@ -52,7 +74,7 @@ export default function ChatWidget() {
           <div className="chat-header">
             <div>
               <strong>Campus Customs</strong>
-              <span>Merch assistant</span>
+              <span>{user ? `Chatting as ${user.first_name || user.name}` : 'Merch assistant'}</span>
             </div>
             <button className="chat-close" onClick={() => setOpen(false)} aria-label="Close chat">
               ×
@@ -61,11 +83,17 @@ export default function ChatWidget() {
           <div className="chat-messages">
             {messages.map((m, i) => (
               <div key={i} className={`chat-turn ${m.role}`}>
-                <div className={`chat-bubble ${m.role}`}>{m.content}</div>
+                <div className={`chat-bubble ${m.role}`}>{m.content.replace(/\*\*/g, '')}</div>
                 {m.products && m.products.length > 0 && (
-                  <div className="chat-showing">
-                    ↑ Showing {m.products.length} {m.products.length === 1 ? 'item' : 'items'} on the page
-                  </div>
+                  <button
+                    className="chat-showing"
+                    onClick={() => {
+                      show(m.resultsTitle ?? 'Earlier results', m.products ?? [])
+                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                    }}
+                  >
+                    ↑ Show these {m.products.length} {m.products.length === 1 ? 'item' : 'items'} on the page
+                  </button>
                 )}
               </div>
             ))}
@@ -82,7 +110,7 @@ export default function ChatWidget() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about merch…"
+              placeholder={productId ? 'Ask about this item…' : 'Ask about merch…'}
               aria-label="Chat message"
             />
             <button type="submit" className="btn btn-primary" disabled={!input.trim() || waiting}>

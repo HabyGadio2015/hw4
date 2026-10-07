@@ -70,11 +70,19 @@ class ChatTurn(BaseModel):
     content: str = Field(max_length=4000)
 
 
+class PageContext(BaseModel):
+    """Where the shopper is on the site. Sent by the chat widget with every message."""
+
+    path: str = Field(max_length=200)
+    product_id: str | None = Field(default=None, max_length=120, description="Set on a single-item page.")
+
+
 class ChatRequest(BaseModel):
     """What the website's chat widget sends to POST /api/chat."""
 
     message: str = Field(min_length=1, max_length=MAX_MESSAGE_CHARS)
     history: list[ChatTurn] = Field(default_factory=list, max_length=MAX_HISTORY_TURNS)
+    page: PageContext | None = None
 
 
 class ProductCard(BaseModel):
@@ -99,14 +107,24 @@ class ChatResponse(BaseModel):
     products: list[ProductCard]
 
 
+class ChatHistoryItem(BaseModel):
+    """One saved message returned by GET /api/chat/history."""
+
+    role: Literal["user", "assistant"]
+    content: str
+    products: list[ProductCard] = Field(default_factory=list)
+
+
 # ---------- Agent (Problem 5) ----------
 
 
 @dataclass
 class ShopDeps:
-    """Per-request context handed to the agent and its tools."""
+    """Per-request context handed to the agent and its tools (Problem 8: who is chatting, and where)."""
 
-    shopper_first_name: str | None = None
+    user: UserPublic | None = None  # the logged-in shopper (never includes the password hash)
+    page: PageContext | None = None  # the page the shopper is on
+    page_product: ProductDetail | None = None  # that page's product, loaded from the DB (not trusted from the browser)
 
 
 class ProductMatch(BaseModel):

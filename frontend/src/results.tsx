@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { ProductCard } from './types'
 
@@ -18,11 +18,9 @@ const ResultsContext = createContext<ResultsState | null>(null)
 // Holds the product matches the chat agent returned, so any page can show them.
 export function ResultsProvider({ children }: { children: ReactNode }) {
   const [results, setResults] = useState<Results | null>(null)
-  const value: ResultsState = {
-    results,
-    show: (title, products) => setResults({ title, products }),
-    clear: () => setResults(null),
-  }
+  const show = useCallback((title: string, products: ProductCard[]) => setResults({ title, products }), [])
+  const clear = useCallback(() => setResults(null), [])
+  const value = useMemo<ResultsState>(() => ({ results, show, clear }), [results, show, clear])
   return <ResultsContext.Provider value={value}>{children}</ResultsContext.Provider>
 }
 
