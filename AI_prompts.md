@@ -60,7 +60,7 @@ Feedback from Haby: The agent took almost 5 minutes to do this problem and used 
 3. Good job for not rewriting earlier text and writing a note instead, keep that up - always ask for permission
 4. Also how much is 3k in dollars approximately
 
-Feedback from Haby: Now my agent is automatically informing me of its token use. I have also asked it to tell me the total price. Just Problem 6 alone cost me almost 2 dollars. That is VERY expensive.  The other problem is if I change from Opus to Sonnet, it will cost me even more because it says it will have to re-read everyhting. Every problem should only be costing me a few cents - at this rate, I will be out of money. My next prompt will be focused on cost-optimization. I know that agents are motivated by rewards, so I will give it a reward at the end if it, if it saves me money!
+Feedback from Haby: Now my agent is automatically informing me of its token use. I have also asked it to tell me the total price. Just Problem 6 alone cost me almost 2 dollars. That is VERY expensive.  Every problem should only be costing me a few cents - at this rate, I will be out of money. My next prompt will be focused on cost-optimization. I know that agents are motivated by rewards, so I will give it a reward at the end if it, if it saves me money!
 
 ## Between Problems 6 and 7
 
@@ -70,5 +70,6 @@ Feedback from Haby: Now my agent is automatically informing me of its token use.
 
 1. Problem 7: Chat Search That Updates The Page     Now we will add a neat feature to the site. When a custom asks about a type of item - for example "what hoodies do you have" - you should search the catalogue and the website should dynamically show those matching items as product cards (image, price, name, short info). This is an API contract: the agent returns structured  product matches and then the frontend renders them on the website. I want it to look beautiful!!
 2. After the dynamic product cards are loaded by your new feature, make sure the same single-item page behavior you built in Problem 3 still works: each product card - including the ones the chat just put on the page - should still open that detail view (large image + full info) when clicked. Update prompts/prompt.md and output/harness.md so it is clear how search results reach the page.
+3. For my previous feedback, I want you to delete the sentence about changing from opus to sonnet costing more. Show me the full revised version
 
 Feedback from Haby: 
