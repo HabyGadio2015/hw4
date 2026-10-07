@@ -225,6 +225,42 @@ New "Tools: product info and stock" section: a table matching each kind of quest
 
 **Verified (2026-10-07):** offline compile, pyflakes, tsc, and lint all pass. Live: "what hoodies do you have?" → the title "Yale Hoodies" and 12 cards (e.g. Basic Hoodie Big Yale $68.00 with sizes XS–XXL, Brooks Brothers Full Zip $88.00) rendered on the page, with a short chat reply. Checked on screen.
 
+### How search results reach the page (step by step)
+*(Added 2026-10-07. It describes the code as it is now, so it includes later changes such as the safety guard. Nothing else in this section was changed.)*
+
+```
+Shopper types a question (or clicks a starter) in the chat
+  1. ChatWidget -> sendChat()           frontend/src/api.ts     POST /api/chat {message, history, page}
+  2. main.py chat()                     guard (sensitive data stops here) -> who is logged in -> history
+  3. agent.chat() runs the agent        prompts/prompt.md tells it to search, then list matching ids
+  4. tool: search_products(...)         tools.py -> catalogue search, read-only, up to 12 ProductMatch
+  5. agent returns AgentReply           {reply, product_ids (max 12), results_title}
+  6. product_cards(product_ids)         tools.py: look up every id in the database, drop unknown ids
+  7. ChatResponse sent to the browser   {reply, results_title, products: ProductCard[], tools_used}
+  8. ChatWidget calls show(title, products)   results.tsx (ResultsProvider holds the cards in React state)
+  9. ResultsPanel re-renders            reads the same state and draws the cards under the menu bar
+ 10. Shopper clicks a card              router link /products/{product_id} -> single-item page
+```
+
+| Step | Where | What happens |
+|---|---|---|
+| 1 | `ChatWidget.tsx`, `api.ts` | The message goes to `POST /api/chat` with the text-only history and the page context. Vite forwards `/api/*` to FastAPI. |
+| 2 | `main.py` | `guard.contains_sensitive()` stops card numbers, SSNs, and passwords: the fixed reply comes back with **no cards** and nothing is saved. Otherwise the route reads the optional logged-in user from the cookie. Logged-in shoppers get their saved history from the database; guests use what the browser sent. |
+| 3 | `agent.py`, `prompt.md` | The agent gets the system prompt, the shopper and page context, and the history. The "Showing items on the page" section says to search, return the best matching ids, add a short title, and keep the text short. |
+| 4 | `tools.py` | `search_products` scores the catalogue: name and garment-type matches count double, synonyms like "hoodie" / "hooded" are expanded, and color, price, and in-stock filters apply. It returns up to 12 `ProductMatch` items. |
+| 5 | `models.py` (`AgentReply`) | PydanticAI forces the final answer into this shape: `reply`, `product_ids` (copied from the search results), and `results_title`. The agent returns **ids only**, never prices or images. |
+| 6 | `tools.py` (`product_cards`) | Every id is looked up in the database again. Unknown ids are dropped. Each card gets its name, garment type, `short_info` (first sentence of the description), colors, price, image URL, `in_stock`, and the sizes in stock. The title is kept only if at least one card survives. |
+| 7 | `agent.py`, `main.py` | The response goes back. For a logged-in shopper the reply and its cards are saved in `chat_messages` (`products_json`). |
+| 8 | `ChatWidget.tsx`, `results.tsx` | If `products` is not empty, `show(title, products)` stores them in the shared `ResultsProvider` state (title falls back to the shopper's own words), and the page scrolls to the top. |
+| 9 | `ResultsPanel.tsx`, `App.tsx` | `ResultsPanel` sits above the page routes, so any page can show the cards. It is hidden on single-item pages, and the cards stay saved. |
+| 10 | `ResultsPanel.tsx`, `ProductDetail.tsx` | Each card links to `/products/{product_id}`, the same route the Products grid uses. |
+
+**What decides what is shown:** the model only chooses *which* products (ids). Everything the shopper sees on a card comes from the database in step 6, so a card can't show an invented product, price, or stock.
+
+**When no cards appear:** no matching products (the agent returns an empty list and says so), a message the guard blocked, or an agent error (the route returns a friendly 502 message, nothing is saved). In each case the cards already on the page stay as they were.
+
+**Note:** later, a saved message with cards shows a "↑ Show these N items on the page" button (Problem 8). Clicking it calls `show()` again with the cards rebuilt from the database. Live messages use the same button, so the earlier line "The chat bubble only says ↑ Showing N items" is out of date.
+
 ### Update (Problem 7 follow-up): how search results reach the page, and how a card opens the detail view
 *(Added after section 6. Nothing above was changed.)*
 

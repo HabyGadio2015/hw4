@@ -105,3 +105,4 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 5. Now show me output/harness.md in Prob 6
 6. And Prob 7
 7. And Prob 8
+8. On Prob 7 I want you to specifically add in output/harness.md how search results reach the page
