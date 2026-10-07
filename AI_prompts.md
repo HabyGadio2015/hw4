@@ -108,3 +108,9 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 8. On Prob 7 I want you to specifically add in output/harness.md how search results reach the page
 9. Let me see output/usability.md in prob 9
 10. If these 4 points are mistakes - fix it
+
+## Problem 10: Style the Website
+
+1. Problem 10: Style the Website    Add creative design so the site feels like a real Campus Customs storefront - fonts, color, hierachy, motion, product presentation, chat feel. I will get more points for imaginative and innovative design. I need this to look unlike any other similar project out there. I want it to be highly animative and fun and interactive.                          Tell me what should be changed and why it would help customers on the interface. Do not change anything just make suggestions. In output/design.md  I want you to put "I changed ________ because _________" fill in those blanks.
+
+Feedback from Haby: 
