@@ -130,6 +130,7 @@ Code: `backend/auth.py` (router mounted in `main.py`), `frontend/src/auth.tsx` (
 - **Signup reveals registered emails:** unlike login, the signup form says "An account with this email already exists", which tells a stranger an email is registered.
 - **Sessions reset on restart:** unless `SESSION_SECRET` is set, the signing secret is random each time the server starts, so a restart or code reload logs everyone out.
 - **"Not sent to any model":** this is true for login and signup. In the chat, passwords, card numbers, and SSNs are blocked before they reach the model only since Problem 9, and only for recognizable patterns (see section 8).
+- **Test logins file:** the line above that says test credentials are in `backend/TEST_ACCOUNTS.md` refers to a file kept only on the developer's computer. It is git-ignored and is not in the repository.
 
 ## 4. Agent Backend (Problem 5)
 

@@ -133,7 +133,8 @@ def check_git_hygiene():
     bad = [f for f in files if re.search(r"\.db$|\.sqlite|\.jpe?g$|\.png$|\.env$|(^|/)\.venv/|node_modules", f)]
     assert not bad, f"tracked files that must stay out of git: {bad[:5]}"
     assert subprocess.run(["git", "check-ignore", "-q", "data/campus_customs.db"], cwd=PROJECT).returncode == 0
-    return "(note: backend/TEST_ACCOUNTS.md is tracked)" if "backend/TEST_ACCOUNTS.md" in files else ""
+    assert "backend/TEST_ACCOUNTS.md" not in files, "the local test-logins file must stay out of the repository"
+    assert subprocess.run(["git", "check-ignore", "-q", "backend/TEST_ACCOUNTS.md"], cwd=PROJECT).returncode == 0
 
 
 def check_frontend():
