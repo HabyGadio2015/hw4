@@ -14,6 +14,8 @@ SQLite, 5 tables. The database and `data/products/` images are git-ignored and n
 | `chat_messages` | 22 | Saved chat history per user, including products shown |
 | `sqlite_sequence` | 3 | SQLite internal AUTOINCREMENT counters |
 
+*Note added 2026-10-07 (text above unchanged): the row counts in the table are the numbers on 2026-10-05, when this section was written. `catalogue` (102) and `inventory` (612) are unchanged. Two have grown through later testing: `users` is now 4 (Problem 4 created one account through the sign-up form) and `chat_messages` is now 26 (chats saved during Problem 8 and later testing). The counts change whenever the site is used, so treat them as a snapshot, not a fixed number.*
+
 ### `catalogue`
 
 | Field | Type | Why it matters |
@@ -163,8 +165,15 @@ Same layout as HW 3: one API app plus four agent files in `backend/`.
 - **Output:** `AgentReply {reply, product_ids}`. `product_cards()` rebuilds each card from the DB and **drops unknown ids**, so a card's price or stock can never be made up by the model.
 - **Limits:** at most 6 model requests and 8 tool calls per chat turn (`UsageLimits`).
 
+*Note added 2026-10-07 (text above unchanged). Five details in this section were correct for Problem 5 but were overtaken by later problems. Section 10 is the current picture; these are the specific differences:*
+1. *`ChatRequest` now carries `message, history, page` (Problem 8 added the page context).*
+2. *`ChatResponse` now carries `reply, results_title, products, tools_used, filtered` (Problems 7, 9, and 12).*
+3. *`AGENT_TOOLS` is now five tools, not two: `search_products` (up to 12 matches, not 8), `get_product_snapshot`, `get_product_description`, `get_price`, `check_stock`. `get_product_details` no longer exists (Problems 6 and 9).*
+4. *`AgentReply` now carries `reply, product_ids, results_title` (Problem 7).*
+5. *The `@agent.instructions` line no longer adds only a first name. For a logged-in shopper it adds their full name and email, and, on a product page, that product's name, id, and colors (Problem 8). It still never includes the password hash.*
+
 ### New types (`models.py`)
-`ChatTurn`, `ChatRequest`, `ProductCard`, `ChatResponse`, `ShopDeps` (agent deps: shopper_first_name), `ProductMatch`, `AgentReply`. The Problem 3 and 4 types (`ProductSummary`, `ProductDetail`, `SizeStock`, `SignupRequest`, `LoginRequest`, `UserPublic`) moved here, so all types live in one file.
+`ChatTurn`, `ChatRequest`, `ProductCard`, `ChatResponse`, `ShopDeps` (agent deps: shopper_first_name — *Problem 8 replaced this field with `user`, `page`, and `page_product`; see section 7*), `ProductMatch`, `AgentReply`. The Problem 3 and 4 types (`ProductSummary`, `ProductDetail`, `SizeStock`, `SignupRequest`, `LoginRequest`, `UserPublic`) moved here, so all types live in one file.
 
 ### Verified (2026-10-07)
 - Offline first (no paid calls): compile, search quality, cards dropping fake ids, and full agent wiring with PydanticAI's `TestModel`.
