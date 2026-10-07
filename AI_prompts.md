@@ -183,5 +183,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 18. I want you to do them
 19. Nevermind about changing my username. Just make sure my email is hidden. I dont know how to do 2
 20. X. Now I'm going to change the model. Do X and stop.
+21. Hello new agent. I need you to run from the top of the assignment - the first prompt until the last prompt. Make sure there are no mistakes. If there are any mistakes - fix it. Make sure instructions are followed step by step. No, and I mean ABSOLUTELY NO inventions. I do not want you expensing more than $4. Be as cost-efficient as possible
 
 Feedback from Haby: This last step was the most involved because it required a back-and-forth between myself and the agent. It had a list of suggestions and I also had changes I wanted to make. Some of my changes were related to the semantics of the code whereas my biggest concern was my own privacy. The agent was great in informing me that my email and username are public, and I asked it to take the appropriate steps to hide my identity.
