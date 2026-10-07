@@ -4,11 +4,20 @@
   --yale-blue-mid: #286dc0;
   --yale-blue-light: #63aaff;
   --yale-gray: #978d85;
-  --bg: #ffffff;
-  --bg-soft: #f2f5f9;
+  --bg: #fffdf8;
+  --bg-soft: #f3eee3;
   --text: #1f2933;
   --muted: #5b6672;
-  --border: #dde3ea;
+  --border: #e4dccb;
+
+  /* storefront palette: locker-room cream, chalk, brass gold; crimson is the Game Day accent */
+  --chalk: #fbf7ee;
+  --cream: #f3eee3;
+  --gold: #c9a24b;
+  --crimson: #a51c30;
+  --crimson-dark: #7d1424;
+  /* varsity slab headlines: system fonts only, so nothing has to be downloaded */
+  --font-display: 'Rockwell Extra Bold', 'Rockwell', 'Roboto Slab', 'Arvo', 'Clarendon', 'Bookman Old Style', Georgia, serif;
 
   font-family: 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
   color: var(--text);
@@ -29,7 +38,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-display);
   color: var(--yale-blue);
   line-height: 1.2;
   margin: 0 0 0.5rem;

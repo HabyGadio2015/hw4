@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { fetchChatHistory, sendChat } from '../api'
 import { useAuth } from '../auth'
+import { useChatBridge } from '../chatbridge'
 import { useResults } from '../results'
 import type { ChatMessage, PageContext } from '../types'
 
@@ -22,6 +23,7 @@ const PRODUCT_STARTERS = ['What sizes are in stock?', 'What colors does it come 
 export default function ChatWidget() {
   const { user } = useAuth()
   const { show, clear } = useResults()
+  const { request, clear: clearRequest } = useChatBridge()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -52,9 +54,17 @@ export default function ChatWidget() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, waiting, open])
 
+  // Something on the page (a gift card, say) asked the chat to send a message.
+  useEffect(() => {
+    if (!request) return
+    void send(request.message)
+    clearRequest()
+  }, [request]) // eslint-disable-line react-hooks/exhaustive-deps
+
   async function send(raw: string) {
     const text = raw.trim()
     if (!text || waiting) return
+    setOpen(true)
     const previous = messages.slice(1) // skip the local greeting; the agent has its own prompt
     setMessages([...messages, { role: 'user', content: text }])
     setInput('')

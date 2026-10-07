@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import ProductCard from '../components/ProductCard'
 import { fetchProducts } from '../api'
 import { categoryOf } from '../categories'
@@ -9,7 +10,8 @@ type Sort = 'name' | 'price-asc' | 'price-desc'
 export default function Products() {
   const [products, setProducts] = useState<ProductSummary[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [query, setQuery] = useState('')
+  const [params] = useSearchParams()
+  const [query, setQuery] = useState(params.get('q') ?? '')
   const [category, setCategory] = useState('All')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [sort, setSort] = useState<Sort>('name')
