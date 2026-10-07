@@ -176,5 +176,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 11. Add this to feedback for Prob 13, paste the whole thing below so I can check.             whereas my biggest concern was my own privacy. The agent was great in informing me that my email and username are public, and I asked it to take the appropriate steps to hide my identity.
 12. Give me the link. No editorializing
 13. Did you hide my email throughout, yes or no only
+14. Hide my email throughout. Username - yes rename to Hidden2015.
 
 Feedback from Haby: This last step was the most involved because it required a back-and-forth between myself and the agent. It had a list of suggestions and I also had changes I wanted to make. Some of my changes were related to the semantics of the code whereas my biggest concern was my own privacy. The agent was great in informing me that my email and username are public, and I asked it to take the appropriate steps to hide my identity.
