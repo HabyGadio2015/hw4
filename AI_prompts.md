@@ -73,4 +73,4 @@ Feedback from Haby: Now my agent is automatically informing me of its token use.
 3. For my previous feedback, I want you to delete the sentence about changing from opus to sonnet costing more. Show me the full revised version
 4. Great
 
-Feedback from Haby: 
+Feedback from Haby: In terms of spending, my assignment is now costing a fraction of what it did before. My worry now is about the quality of the website. It mentioned there being a bug causing the blank page that it needed to fix. I will turn Opus on at the end, to ensure everything done by this cheaper model is correct and mistake-free.
