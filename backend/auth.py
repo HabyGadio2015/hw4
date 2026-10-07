@@ -16,12 +16,12 @@ import secrets
 import sqlite3
 import time
 from collections import defaultdict, deque
-from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request, Response
-from pydantic import BaseModel, Field
 
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "campus_customs.db"
+from models import LoginRequest, SignupRequest, UserPublic
+from tools import DB_PATH
+
 
 ALGORITHM = "pbkdf2_sha256"
 ITERATIONS = 600_000  # OWASP 2023 recommendation for PBKDF2-HMAC-SHA256
@@ -41,32 +41,6 @@ MAX_FAILS_PER_IP = 20
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
-
-
-# ---------- Models ----------
-
-
-class SignupRequest(BaseModel):
-    first_name: str = Field(min_length=1, max_length=50)
-    last_name: str = Field(min_length=1, max_length=50)
-    email: str = Field(max_length=254)
-    password: str = Field(max_length=128)
-    confirm_password: str = Field(max_length=128)
-
-
-class LoginRequest(BaseModel):
-    email: str = Field(max_length=254)
-    password: str = Field(max_length=128)
-
-
-class UserPublic(BaseModel):
-    """What the front end (and later the agent) may see about a user. Never includes the hash."""
-
-    id: int
-    first_name: str | None
-    last_name: str | None
-    name: str
-    email: str
 
 
 # ---------- Password hashing ----------

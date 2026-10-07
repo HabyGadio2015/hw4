@@ -747,3 +747,74 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Chat product cards */
+.chat-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.chat-turn.user {
+  align-items: flex-end;
+}
+
+.chat-turn.assistant {
+  align-items: flex-start;
+}
+
+.chat-products {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.chat-product {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.45rem;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--yale-blue);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.chat-product:hover {
+  box-shadow: 0 3px 10px rgba(0, 53, 107, 0.15);
+}
+
+.chat-product img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  background: var(--bg-soft);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.chat-product div {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+
+.chat-product-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--yale-blue);
+}
+
+.chat-product-price {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.chat-product-stock {
+  font-size: 0.75rem;
+  color: var(--muted);
+}

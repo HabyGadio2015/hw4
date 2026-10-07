@@ -1,4 +1,4 @@
-import type { ChatMessage, ProductDetail, ProductSummary, SignupInput, User } from './types'
+import type { ChatMessage, ChatResponse, ProductDetail, ProductSummary, SignupInput, User } from './types'
 
 async function getJson<T>(url: string): Promise<T> {
   const res = await fetch(url)
@@ -39,12 +39,15 @@ export async function fetchMe(): Promise<User | null> {
 
 export const formatPrice = (price: number) => `$${price.toFixed(2)}`
 
-// Chat stub: the agent endpoint (POST /api/chat) arrives in a later problem.
-// Until then this returns a placeholder reply without calling the backend.
-export async function sendChat(_history: ChatMessage[]): Promise<ChatMessage> {
-  await new Promise((r) => setTimeout(r, 400))
-  return {
-    role: 'assistant',
-    content: 'Thanks for your message! Our Campus Customs assistant is coming soon — for now, browse the Products page.',
-  }
+// ---------- Chat (POST /api/chat → PydanticAI agent) ----------
+
+const MAX_HISTORY_TURNS = 20
+
+export async function sendChat(message: string, history: ChatMessage[]): Promise<ChatMessage> {
+  const res = await postJson<ChatResponse>('/api/chat', {
+    message,
+    // Text-only history; the backend rebuilds product cards itself.
+    history: history.slice(-MAX_HISTORY_TURNS).map(({ role, content }) => ({ role, content })),
+  })
+  return { role: 'assistant', content: res.reply, products: res.products }
 }

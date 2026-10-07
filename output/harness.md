@@ -124,3 +124,42 @@ Code: `backend/auth.py` (router mounted in `main.py`), `frontend/src/auth.tsx` (
 - Seed test user `test@campuscustoms.yale.edu` / `password` → logs in, the nav shows "Hi, Test", the session survives a reload, and logout works.
 - A brand-new account created through the form → stored as user id 4 with a 600k-iteration hash, logs in, logs out, and logs back in (email is case-insensitive). The plaintext password is not anywhere in the DB file. Test credentials are in `backend/TEST_ACCOUNTS.md`.
 - Wrong password, unknown email, mismatched confirm, short password, bad email, duplicate email, tampered cookie, and the 6th rapid failed login (429) are all rejected.
+
+## 4. Agent Backend (Problem 5)
+
+Same layout as HW 3: one API app plus four agent files in `backend/`.
+
+| File | Role |
+|---|---|
+| `main.py` | The FastAPI app that Uvicorn runs. Product, image, auth, and **chat** routes. |
+| `prompts/prompt.md` | The one system prompt: voice, honesty rules, safety basics. Grow this same file later. |
+| `agent.py` | Agent entry and wiring: builds the PydanticAI `Agent` and exposes `chat()`. |
+| `tools.py` | Model setup (`make_model`), read-only DB helpers, and the agent tools. |
+| `models.py` | **All** Pydantic types: catalogue, auth, chat API, agent output. |
+
+**Run** from `backend/`: `source .venv/bin/activate` then `uvicorn main:app --reload --port 8000` (verified 2026-10-07). Front end: `npm run dev -- --port 5174` in `frontend/`.
+
+### How the front end talks to FastAPI
+1. The browser only talks to Vite (`localhost:5174`). `vite.config.ts` proxies `/api/*` and `/media/*` to FastAPI on `127.0.0.1:8000`, so it's the same origin: no CORS problems, and the HttpOnly session cookie is sent automatically.
+2. `frontend/src/api.ts` is the only place that calls the backend:
+   - `GET /api/products`, `GET /api/products/{id}` → Products grid and single-item page
+   - `POST /api/auth/signup|login|logout`, `GET /api/auth/me` → `auth.tsx` (AuthProvider)
+   - `POST /api/chat` → `ChatWidget.tsx`
+3. **Chat round trip:** the widget sends `ChatRequest {message, history}` (text-only history, at most 20 turns, message ≤ 1000 characters). `main.py` reads the optional logged-in user from the cookie and calls `agent.chat()`, which runs the agent, then returns `ChatResponse {reply, products: ProductCard[]}`. The widget shows the reply plus clickable product cards that link to `/products/{id}`.
+4. Errors: if the agent fails, the route logs the details on the server and returns a friendly 502 message. Stack traces and keys never reach the browser.
+
+### How the agent is loaded
+- **Built once, lazily** (`build_agent()` with `lru_cache`) on the first chat, so the site and product pages still work if the model is down or the key is missing.
+- **Prompt file:** `load_system_prompt()` reads `backend/prompts/prompt.md` and **refuses to start if the `## Safety rules` section is missing** (same guard as HW 3). A dynamic `@agent.instructions` line adds only the shopper's first name, or "not logged in". No email, no id, no hash.
+- **Model:** `make_model()` in `tools.py` loads `PORTKEY_API_KEY` from `HW 4/.env`, falling back to the workspace-root `.env` (the key is never in source). It builds an `AsyncOpenAI` client pointed at Portkey (`https://api.portkey.ai/v1`, `x-portkey-api-key` header, 60 s timeout, 1 retry) and wraps it in PydanticAI's `OpenAIResponsesModel("gpt-5.6-luna")`. `PORTKEY_MODEL` / `PORTKEY_BASE_URL` can override these. No `temperature` is passed (GPT-5 family).
+- **Tools** (`AGENT_TOOLS`): `search_products(query, color?, max_price?, in_stock_only?)` → up to 8 `ProductMatch`; `get_product_details(product_id)` → `ProductDetail` with per-size quantities. Both are read-only, and neither can reach the users or chat tables.
+- **Output:** `AgentReply {reply, product_ids}`. `product_cards()` rebuilds each card from the DB and **drops unknown ids**, so a card's price or stock can never be made up by the model.
+- **Limits:** at most 6 model requests and 8 tool calls per chat turn (`UsageLimits`).
+
+### New types (`models.py`)
+`ChatTurn`, `ChatRequest`, `ProductCard`, `ChatResponse`, `ShopDeps` (agent deps: shopper_first_name), `ProductMatch`, `AgentReply`. The Problem 3 and 4 types (`ProductSummary`, `ProductDetail`, `SizeStock`, `SignupRequest`, `LoginRequest`, `UserPublic`) moved here, so all types live in one file.
+
+### Verified (2026-10-07)
+- Offline first (no paid calls): compile, search quality, cards dropping fake ids, and full agent wiring with PydanticAI's `TestModel`.
+- Live: "navy hoodie in medium?" took 6.9 s and returned 4 cards. All prices and M stock match the DB.
+- Logged in as Test User in the browser: "pink hoodies?" → honestly says none (0 pink items in the DB). "Gray tee under $35, XL?" → 6 cards at $32.00, XL in stock on each, all matching the DB.

@@ -21,9 +21,25 @@ export interface ProductDetail extends ProductSummary {
   inventory: SizeStock[]
 }
 
+// A product card returned with a chat reply (built from the database by the backend).
+export interface ProductCard {
+  product_id: string
+  name: string
+  price: number
+  image_url: string
+  in_stock: boolean
+  sizes_in_stock: string[]
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  products?: ProductCard[]
+}
+
+export interface ChatResponse {
+  reply: string
+  products: ProductCard[]
 }
 
 export interface User {

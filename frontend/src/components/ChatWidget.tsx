@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { sendChat } from '../api'
+import { Link } from 'react-router-dom'
+import { formatPrice, sendChat } from '../api'
 import type { ChatMessage } from '../types'
 
 const GREETING: ChatMessage = {
@@ -23,15 +24,16 @@ export default function ChatWidget() {
     e.preventDefault()
     const text = input.trim()
     if (!text || waiting) return
-    const history: ChatMessage[] = [...messages, { role: 'user', content: text }]
-    setMessages(history)
+    const previous = messages.slice(1) // skip the local greeting; the agent has its own prompt
+    setMessages([...messages, { role: 'user', content: text }])
     setInput('')
     setWaiting(true)
     try {
-      const reply = await sendChat(history)
+      const reply = await sendChat(text, previous)
       setMessages((m) => [...m, reply])
-    } catch {
-      setMessages((m) => [...m, { role: 'assistant', content: 'Sorry, something went wrong. Please try again.' }])
+    } catch (err) {
+      const content = err instanceof Error ? err.message : 'Sorry, something went wrong. Please try again.'
+      setMessages((m) => [...m, { role: 'assistant', content }])
     } finally {
       setWaiting(false)
     }
@@ -52,8 +54,24 @@ export default function ChatWidget() {
           </div>
           <div className="chat-messages">
             {messages.map((m, i) => (
-              <div key={i} className={`chat-bubble ${m.role}`}>
-                {m.content}
+              <div key={i} className={`chat-turn ${m.role}`}>
+                <div className={`chat-bubble ${m.role}`}>{m.content}</div>
+                {m.products && m.products.length > 0 && (
+                  <div className="chat-products">
+                    {m.products.map((p) => (
+                      <Link key={p.product_id} to={`/products/${p.product_id}`} className="chat-product">
+                        <img src={p.image_url} alt={p.name} />
+                        <div>
+                          <span className="chat-product-name">{p.name}</span>
+                          <span className="chat-product-price">{formatPrice(p.price)}</span>
+                          <span className="chat-product-stock">
+                            {p.in_stock ? `In stock: ${p.sizes_in_stock.join(', ')}` : 'Sold out'}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
             {waiting && (
