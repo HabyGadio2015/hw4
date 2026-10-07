@@ -94,4 +94,4 @@ Feedback from Haby: As expected, this model makes more mistakes. I needed to ask
 6. give me the link
 7. These are great. Let's make sure these suggestions are written somewhere in output/usability.md so my grader knows. Then I want you to implement these
 
-Feedback from Haby: 
+Feedback from Haby: This was a more costly session, because there were 2 live model calls which took a long time to process ($1.20). The balance I have been wanting to strike is between cost and quality. From my experience, as well as from information I've gathered conversing with peers, the cheaper models are mistake-prone. It becomes a question of how good are you at balancing your budget while optimizing for the best solution.
