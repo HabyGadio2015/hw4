@@ -9,6 +9,7 @@ main.py calls `chat()` for every POST /api/chat. The agent is built once, on fir
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 
 from pydantic_ai import Agent, RunContext
@@ -21,6 +22,8 @@ from tools import AGENT_TOOLS, BACKEND_DIR, fetch_product_detail, make_model, pr
 PROMPT_PATH = BACKEND_DIR / "prompts" / "prompt.md"
 SAFETY_HEADING = "## Safety rules"
 # Caps one chat turn so a confused model can't loop on tools (and spend) forever.
+# Only plain site paths are ever put into the prompt (the path comes from the browser).
+SAFE_PATH = re.compile(r"/[A-Za-z0-9/_-]{0,100}")
 USAGE_LIMITS = UsageLimits(request_limit=6, tool_calls_limit=8)
 
 
@@ -76,7 +79,7 @@ def describe_context(deps: ShopDeps) -> str:
             f"listed in these colors: {', '.join(p.colors)}. If they say \"this\", \"it\", \"this one\", or "
             "\"this item\", they mean this product: use this product_id with your tools."
         )
-    elif deps.page:
+    elif deps.page and SAFE_PATH.fullmatch(deps.page.path):
         lines.append(f"The shopper is on the website page {deps.page.path}.")
     return "\n".join(lines)
 

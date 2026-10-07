@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { fetchChatHistory, sendChat } from '../api'
 import { useAuth } from '../auth'
 import { useResults } from '../results'
@@ -15,6 +15,7 @@ export default function ChatWidget() {
   const { user } = useAuth()
   const { show, clear } = useResults()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING])
   const [input, setInput] = useState('')
@@ -89,7 +90,9 @@ export default function ChatWidget() {
                     className="chat-showing"
                     onClick={() => {
                       show(m.resultsTitle ?? 'Earlier results', m.products ?? [])
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
+                      // The results panel is hidden on single-item pages, so go to a page where it shows.
+                      if (productId) navigate('/products')
+                      else window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
                   >
                     ↑ Show these {m.products.length} {m.products.length === 1 ? 'item' : 'items'} on the page

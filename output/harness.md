@@ -271,3 +271,9 @@ New "Tools: product info and stock" section: a table matching each kind of quest
 - **Storage:** history before 6 messages, after 10 (+4 rows). A guest asking the same question on that page got a correct answer and added 0 rows. `GET /api/chat/history` returned 401 for the guest.
 - **Browser:** a logged-in shopper's widget showed "Chatting as Test" with 11 messages reloaded (greeting + 10 saved) and "Show these N items" buttons. The request carried `page = {path: /products/basic-hoodie-big-yale, product_id: basic-hoodie-big-yale}`. After logging out the widget had only the greeting, the header was back to "Merch assistant", and the results panel was gone. No console errors.
 - **Test data:** the Test User account (in the git-ignored DB) now has 4 more saved messages from these tests.
+
+### Update (Problem 8 double-check)
+*(Added after section 7. Nothing above was changed.)*
+- **Prompt-injection hardening:** the page path comes from the browser, and it was being copied into the agent's instructions. `describe_context()` now includes a path only if it is a plain site path (`/` followed by letters, digits, `/`, `_`, `-`, at most 100 characters). A hostile or overlong path is dropped. Product details still come from the database, never from the browser.
+- **Button fix:** on a single-item page the results panel is hidden by design, so the saved-chat button "↑ Show these N items on the page" did nothing visible. It now takes the shopper to `/products`, where the panel shows. Tested with a logged-in shopper: the button went to `/products`, showed the 8 saved cards (title "Earlier results"), and a card still opened its detail page. No console errors.
+- **Re-checked and fine:** compile, pyflakes, tsc, and lint are clean. No stale `shopper_first_name` references remain. The database, images, `.env`, and `.venv` are not tracked.
