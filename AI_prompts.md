@@ -120,4 +120,4 @@ Feedback from Haby: This was a more costly session, because there were 2 live mo
 7. In each of the 14 sentences I changed X because Y, after the sentence you wrote, I want a single sentence that says "It should help customers stick around and buy because ____" and fill in the blank
 8. Yes
 
-Feedback from Haby: 
+Feedback from Haby: I appreciated that the agent asked me prior to each batch run whether it had my ok. So far Claude has jumped from 1 to 100 in a single breadth, but I think from my frequent intentional pauses and my insistence on a "step by step" method, it is starting to tune into my working style.
