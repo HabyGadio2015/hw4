@@ -52,3 +52,7 @@ Feedback from Haby: There were no additional prompts that we needed. Based on th
 6. How long did it take you to do Prob 5 and how many tokens?
 
 Feedback from Haby: The agent took almost 5 minutes to do this problem and used almost 45k tokens. Going forward, in addition to checking for the agent's correctness, I will be monitoring token use to make sure it doesn't surpass a reasonable limit.
+
+## Problem 6: Tools: Product Info and Stock
+
+1. Problem 6: Tools: Product Info and Stock      I want you to use the tools you need to look up real information from campus_customs.db (1) Product Description (2) Price (3) How many are in stock by size. I need you to use the database NEVER EVER EVER invent prices or quantities. I rather you say Not Found or Out of Stock (whichever is correct) than invent. If a size is out of stock or not found SAY SO. Then, expand prompts/prompt.md so the agent knows to call these tools for price and stock questions. Add or update return types in models.py    Then in output/harness.md list each tool and explain which model fields you chose for lookup results and why
