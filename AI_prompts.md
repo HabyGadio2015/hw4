@@ -172,5 +172,6 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 8. Option X. For 2, publish with HabyGadio2015 but i dont want my username visible to the public or anyone seeing the website, keep hidden@gmail.com
 9. I'm not done with the problem:                                                                         Local-only data pack (not in git):                                                                         data/                                                                                                                                  > ├── campus_customs.db
 > │   ├── products/         #images referenced by the catalogue           The agent itself is four files under backend/: prompts/prompt.md, agent.py, tools.py, and models.py       README.md should explain how to run the front end and back end after placing the data pack.
+10. What's your assessment of your performance on Prob 11. Limit response to 5 sentences
 
 Feedback from Haby: 
