@@ -174,4 +174,4 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 > │   ├── products/         #images referenced by the catalogue           The agent itself is four files under backend/: prompts/prompt.md, agent.py, tools.py, and models.py       README.md should explain how to run the front end and back end after placing the data pack.
 10. What's your assessment of your performance on Prob 11. Limit response to 5 sentences
 
-Feedback from Haby: 
+Feedback from Haby: This last step was the most involved because it required a back-and-forth between myself and the agent. It had a list of suggestions and I also had changes I wanted to make. Some of my changes were related to the semantics of the code
