@@ -317,6 +317,10 @@ def check_repo_layout():
     outside = {f for f in files if not f.startswith("frontend/")} - expected - extras
     assert not outside, f"files outside the agreed layout: {sorted(outside)}"
     assert "frontend/package.json" in files
+    readme = (PROJECT / "README.md").read_text()
+    for needed in ["data/campus_customs.db", "products/", "prompts/prompt.md", "agent.py", "tools.py", "models.py",
+                   "uvicorn main:app --reload --port 8000", "npm run dev", "pip install -r ../requirements.txt", ".env.example"]:
+        assert needed in readme, f"README.md must mention {needed!r}"
     example = (PROJECT / ".env.example").read_text()
     assert "PORTKEY_API_KEY=your-portkey-api-key-here" in example, ".env.example must hold placeholders only"
     html = (PROJECT / "output" / "app_check.html").read_text()

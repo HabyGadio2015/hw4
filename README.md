@@ -10,17 +10,37 @@ A class project: a storefront for a Yale-themed merchandise shop ("Yale Bulldog 
 - **Safety:** a guard that keeps card numbers, SSNs, and passwords away from the model, 13 safety rules in the agent's prompt, loop limits, and an append-only audit trail.
 - **Storefront design:** awning, window display, pennants, a "Game Day" mode, a "Calm" mode that stops all motion, a bulldog chat helper, and more.
 
-## What is not in this repository
-- **The database and product photos** (`data/campus_customs.db` and `data/products/`) come from the course file `datahw4.zip`.
-- **Your own `.env`** with your Portkey API key. `.env.example` shows the format and holds placeholders only.
+## The agent: four files under `backend/`
+| File | Role |
+|---|---|
+| `backend/prompts/prompt.md` | The agent's system prompt: shop voice, honesty rules, how to use the tools, and 13 safety rules. It is one file that grows. |
+| `backend/agent.py` | Agent entry and wiring: loads the prompt, builds the PydanticAI agent, runs a chat turn, and records it in the audit trail. |
+| `backend/tools.py` | The agent's read-only database tools (search, description, price, stock by size, product snapshot) and the model setup. |
+| `backend/models.py` | Every Pydantic type: products, chat messages, tool results, audit entries. |
 
-Without those two you can still read the code, the documents, and the screenshots; you just can't run the chat.
+`backend/main.py` is the FastAPI app: it exposes the chat route (plus products and accounts) and is the file you run with Uvicorn. Four small files support it: `auth.py` (sign-up and login), `memory.py` (saved chat), `guard.py` (the safety guard), and `audit.py` (the audit trail). `regression_check.py` is a test script.
 
-## Run it
+## Local-only data pack (not in git)
+The database and the product photos are not in this repository. They come from the course file `datahw4.zip`. Unzip it so that a `data/` folder sits next to `backend/` and `frontend/`:
+
+```
+hw4/
+├── backend/
+├── frontend/
+├── data/                       #local only, not in git
+│   ├── campus_customs.db
+│   └── products/               #images referenced by the catalogue
+```
+
+Each product's `image_file_path` in the database (for example `products/basic-hoodie-big-yale.jpg`) points into `data/`. Your own `.env` (with your Portkey API key) is also local only; `.env.example` shows the format and holds placeholders only.
+
+Without the data pack and a key you can still read the code, the documents, and the screenshots; you just can't run the site.
+
+## Run it (after placing the data pack)
 1. Clone this repository and open the folder (it is called `hw4`).
-2. Unzip `datahw4.zip` inside it, so `data/campus_customs.db` and `data/products/` exist.
-3. Copy `.env.example` to `.env` and set `PORTKEY_API_KEY`.
-4. Back end:
+2. Place the data pack as shown above: `data/campus_customs.db` and `data/products/`.
+3. Copy `.env.example` to `.env` (in the `hw4` folder) and set `PORTKEY_API_KEY`.
+4. **Back end** (first terminal):
    ```
    cd backend
    python3 -m venv .venv
@@ -28,13 +48,14 @@ Without those two you can still read the code, the documents, and the screenshot
    pip install -r ../requirements.txt
    uvicorn main:app --reload --port 8000
    ```
-5. Front end (in a second terminal):
+   Check it: open http://127.0.0.1:8000/api/health. It should show `{"status":"ok"}`. If it stops at start-up complaining about a missing `data/products` folder, the data pack is not in place yet.
+5. **Front end** (second terminal):
    ```
    cd frontend
    npm install
    npm run dev -- --port 5174
    ```
-6. Open http://localhost:5174
+6. Open http://localhost:5174. The front end sends `/api` and `/media` requests to the back end on port 8000, so start the back end first.
 
 Check that everything still works (no paid model calls; run `npm install` first): `cd backend && .venv/bin/python regression_check.py`
 
@@ -59,13 +80,13 @@ hw4/
 ├── frontend/         #Vite React TypeScript app
 ├── backend/
 │   ├── main.py         #FastAPI app - run with: uvicorn main:app --reload --port 8000
-│   ├── agent.py        #the PydanticAI agent
-│   ├── models.py       #all Pydantic types
-│   ├── tools.py        #the agent's read-only database tools
-│   ├── auth.py  memory.py  guard.py  audit.py   #accounts, saved chat, safety guard, audit trail
-│   ├── regression_check.py
+│   ├── agent.py        #agent file 1 of 4
+│   ├── models.py       #agent file 2 of 4
+│   ├── tools.py        #agent file 3 of 4
 │   ├── prompts/
-│   │   └── prompt.md   #the agent's system prompt, including its safety rules
+│   │   └── prompt.md   #agent file 4 of 4 (the system prompt, including its safety rules)
+│   ├── auth.py  memory.py  guard.py  audit.py   #supporting files: accounts, saved chat, safety guard, audit trail
+│   └── regression_check.py
 ├── output/
 │   ├── harness.md  design.md  usability.md  audit_trail.json
 │   ├── app_check.html
