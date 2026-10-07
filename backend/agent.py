@@ -3,7 +3,7 @@
 main.py calls `chat()` for every POST /api/chat. The agent is built once, on first use:
     system prompt  ← prompts/prompt.md (must contain its "## Safety rules" section)
     model          ← make_model() in tools.py: gpt-5.6-luna through Portkey, PORTKEY_API_KEY from .env
-    tools          ← AGENT_TOOLS in tools.py (read-only catalogue search + product details)
+    tools          ← AGENT_TOOLS in tools.py (read-only: search, description, price, stock by size)
     output         ← AgentReply in models.py (reply text + product_ids)
 """
 
