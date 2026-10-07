@@ -48,3 +48,4 @@ Feedback from Haby:
 2. WAIT HOLD ON ONE SECOND
 3. I think there is a mistake. Didn't I already do HW4? We're you writing on top of HW4 from a few weeks ago? Or was the folder empty when you started?
 4. Ok great. Lets continue with Problem 5
+5. I want you to put Campus Customs voice and safety basics into prompts/prompt.md (you will expand tools and safety later). I want you to start or update types in models.py for chat replies / product cards as needed. In output/harness.md note how the front end talks to FastAPI and how the agent is loaded (prompt file + model). Make sure the backend runs from the backend/ folder like this: uvicorn main:app --reload --port 8000
