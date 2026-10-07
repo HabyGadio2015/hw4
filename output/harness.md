@@ -218,3 +218,23 @@ New "Tools: product info and stock" section: a table matching each kind of quest
 **Code changes:** `models.py` (`ProductCard` fields, `ChatResponse.results_title`, `AgentReply.results_title`, `MAX_PRODUCT_CARDS` 6 → 12), `tools.py` (`short_info`, richer `product_cards`, search limit 12), `agent.py`, `ResultsPanel.tsx`, `results.tsx`, `ChatWidget.tsx`, `App.css`.
 
 **Verified (2026-10-07):** offline compile, pyflakes, tsc, and lint all pass. Live: "what hoodies do you have?" → the title "Yale Hoodies" and 12 cards (e.g. Basic Hoodie Big Yale $68.00 with sizes XS–XXL, Brooks Brothers Full Zip $88.00) rendered on the page, with a short chat reply. Checked on screen.
+
+### Update (Problem 7 follow-up): how search results reach the page, and how a card opens the detail view
+*(Added after section 6. Nothing above was changed.)*
+
+**Path from question to detail page**
+1. **Question → search:** the shopper asks the chat about a type of item. The agent calls `search_products`, which reads the catalogue (up to 12 matches).
+2. **Search → structured matches:** the agent returns `product_ids` plus a `results_title`. The backend rebuilds each match as a `ProductCard` from the database (`product_cards()`), and `POST /api/chat` returns `{reply, results_title, products}`.
+3. **Matches → page:** `ChatWidget` hands the cards to the shared `ResultsProvider`, and `ResultsPanel` draws them under the menu bar.
+4. **Card → detail view:** every card is a router link to `/products/{product_id}`, the same route the Products grid uses. `ProductDetail` loads `GET /api/products/{id}` and shows the large image beside the full description, price, colors, and stock for every size. Because the card and the detail page share the same `product_id`, a card can only open the product it shows.
+
+**Behavior added**
+- On a detail page the results panel is hidden, so the product fills the screen. The results stay saved in memory.
+- The detail page shows "← Back to chat results: {title}" next to "← Back to Products". It returns to the page with all the cards restored.
+- Every page change scrolls to the top, so a clicked card always opens at the top of the detail page.
+
+**Prompt:** `prompts/prompt.md` now says that `product_ids` become cards in the results panel, that each card opens its own product page by its exact `product_id`, and that invented ids would make dead cards, so ids must be copied from tool results.
+
+**Bug found and fixed while testing:** my new scroll-to-top effect in `App.tsx` returned a value, which blanked the whole page. It now returns nothing. tsc and lint did not catch it; only running it in the browser did.
+
+**Verified (2026-10-07), live:** asked "show me your t-shirts" → "Yale T-shirts", 12 cards. Clicked card 2 (Benjamin Franklin T Shirt) and card 12 (School Of Nursing Crest T Shirt). Each opened `/products/{id}` with the same name, a $32.00 price matching the card, a loaded large image, a description, and 6 size cells. The panel was hidden on the detail page, and "Back to chat results" brought back all 12 cards.

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { fetchProduct, formatPrice } from '../api'
+import { useResults } from '../results'
 import type { ProductDetail as Product } from '../types'
 
 const LOW_STOCK = 5
@@ -13,6 +14,7 @@ function stockLabel(quantity: number) {
 
 export default function ProductDetail() {
   const { productId = '' } = useParams()
+  const { results } = useResults()
   // Results are tagged with the id they belong to, so a stale result never shows for a new product.
   const [result, setResult] = useState<{ id: string; product?: Product; error?: string } | null>(null)
 
@@ -28,9 +30,16 @@ export default function ProductDetail() {
 
   return (
     <section className="section page">
-      <Link to="/products" className="back-link">
-        ← Back to Products
-      </Link>
+      <div className="back-links">
+        <Link to="/products" className="back-link">
+          ← Back to Products
+        </Link>
+        {results && results.products.length > 0 && (
+          <Link to="/products" className="back-link">
+            ← Back to chat results: {results.title}
+          </Link>
+        )}
+      </div>
 
       {error && <div className="placeholder">{error}</div>}
       {!error && !product && <div className="placeholder">Loading…</div>}

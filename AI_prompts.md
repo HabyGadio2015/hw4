@@ -69,5 +69,6 @@ Feedback from Haby: Now my agent is automatically informing me of its token use.
 ## Problem 7: Chat Search That Updates The Page
 
 1. Problem 7: Chat Search That Updates The Page     Now we will add a neat feature to the site. When a custom asks about a type of item - for example "what hoodies do you have" - you should search the catalogue and the website should dynamically show those matching items as product cards (image, price, name, short info). This is an API contract: the agent returns structured  product matches and then the frontend renders them on the website. I want it to look beautiful!!
+2. After the dynamic product cards are loaded by your new feature, make sure the same single-item page behavior you built in Problem 3 still works: each product card - including the ones the chat just put on the page - should still open that detail view (large image + full info) when clicked. Update prompts/prompt.md and output/harness.md so it is clear how search results reach the page.
 
 Feedback from Haby: 

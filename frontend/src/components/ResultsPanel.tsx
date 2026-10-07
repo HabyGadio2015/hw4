@@ -1,10 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { formatPrice } from '../api'
 import { useResults } from '../results'
 
 export default function ResultsPanel() {
   const { results, clear } = useResults()
-  if (!results || results.products.length === 0) return null
+  const { pathname } = useLocation()
+  // On a single-item page the product itself is the focus; the results stay saved and come back with "Back to chat results".
+  if (!results || results.products.length === 0 || /^\/products\/.+/.test(pathname)) return null
 
   const { title, products } = results
   return (

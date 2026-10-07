@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import Footer from './components/Footer'
 import ChatWidget from './components/ChatWidget'
@@ -12,6 +13,11 @@ import CreateAccount from './pages/CreateAccount'
 import './App.css'
 
 function App() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+
   return (
     <div className="app">
       <div className="announcement">Officially Licensed Yale Merchandise · 57 Broadway, New Haven</div>
