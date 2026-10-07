@@ -49,3 +49,6 @@ Feedback from Haby: There were no additional prompts that we needed. Based on th
 3. I think there is a mistake. Didn't I already do HW4? We're you writing on top of HW4 from a few weeks ago? Or was the folder empty when you started?
 4. Ok great. Lets continue with Problem 5
 5. I want you to put Campus Customs voice and safety basics into prompts/prompt.md (you will expand tools and safety later). I want you to start or update types in models.py for chat replies / product cards as needed. In output/harness.md note how the front end talks to FastAPI and how the agent is loaded (prompt file + model). Make sure the backend runs from the backend/ folder like this: uvicorn main:app --reload --port 8000
+6. How long did it take you to do Prob 5 and how many tokens?
+
+Feedback from Haby: The agent took almost 5 minutes to do this problem and used almost 45k tokens. Going forward, in addition to checking for the agent's correctness, I will be monitoring token use to make sure it doesn't surpass a reasonable limit.
