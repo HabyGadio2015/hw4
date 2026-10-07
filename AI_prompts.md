@@ -179,5 +179,7 @@ SHOW ME HERE A CONSOLIDATED VERSION BEFORE DOING IT
 14. Hide my email throughout. Username - yes rename to Hidden2015.
 15. Is step 2 necessary, yes or no only
 16. Go ahead
+17. Yes to both
+18. I want you to do them
 
 Feedback from Haby: This last step was the most involved because it required a back-and-forth between myself and the agent. It had a list of suggestions and I also had changes I wanted to make. Some of my changes were related to the semantics of the code whereas my biggest concern was my own privacy. The agent was great in informing me that my email and username are public, and I asked it to take the appropriate steps to hide my identity.
